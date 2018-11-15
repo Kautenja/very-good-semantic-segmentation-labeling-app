@@ -255,7 +255,7 @@ class Palette(object):
 
     def _did_change_label(self, _) -> None:
         selected = self._app.getListBox('labels')
-        if selected is None:
+        if len(selected) == 0:
             return
         selected = selected[0]
         self.segmentation_args['label'] = selected
