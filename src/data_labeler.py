@@ -31,11 +31,14 @@ class DataLabeler(object):
             None
 
         """
-        self._opacity = 9
+        self._opacity = 5
         self._brush_size = multiprocessing.Value('i', 5)
         self._is_brush = multiprocessing.Value('b', True)
         self._image = image
-        self._segmented_image = segment(image, 'felzenszwalb')
+        print(int(np.prod(image.shape)))
+        raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
+        numpy_array = np.frombuffer(raw_array, dtype='uint8')
+        self._super_pixel = numpy_array.reshape(image.shape)
         self._metadata = metadata
         self._output_file = output_file
         self._segmentation = segmentation
@@ -59,7 +62,7 @@ class DataLabeler(object):
             if self._is_brush.value:
                 return self._image
             else:
-                return self._segmented_image
+                return self._super_pixel
 
     def _on_key_press(self, symbol: int) -> None:
         """
@@ -146,7 +149,7 @@ class DataLabeler(object):
         if palette_data['paint'] == 'super_pixel':
             algorithm = palette_data['super_pixel']
             arguments = palette_data[algorithm]
-            self._segmented_image = segment(self._image, algorithm, **arguments)
+            self._super_pixel[:] = segment(self._image, algorithm, **arguments)
 
     def run(self) -> None:
         """Run the simulation."""
