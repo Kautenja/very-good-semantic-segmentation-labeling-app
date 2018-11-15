@@ -18,6 +18,7 @@ class ImageView(object):
 
         """
         # setup the window for this view
+        self.image_shape = image_shape
         self._window = Window(caption, *image_shape)
 
     def show(self, image: 'np.ndarray') -> None:
@@ -59,7 +60,7 @@ class ImageView(object):
         """
         def on_mouse_press(mouse_x: int, mouse_y: int, *args) -> None:
             """Respond to a pyglet mouse click event."""
-            return handler(mouse_x, mouse_y)
+            return handler(mouse_x, self.image_shape[0] - mouse_y)
         self.add_event_handler(on_mouse_press)
 
     def add_on_mouse_drag_handler(self, handler) -> None:
@@ -75,7 +76,7 @@ class ImageView(object):
         """
         def on_mouse_drag(mouse_x: int, mouse_y: int, *args) -> None:
             """Respond to a pyglet mouse drag event."""
-            return handler(mouse_x, mouse_y)
+            return handler(mouse_x, self.image_shape[0] - mouse_y)
         self.add_event_handler(on_mouse_drag)
 
     def add_on_key_press_handler(self, handler) -> None:
