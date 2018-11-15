@@ -1,10 +1,12 @@
 """A semantic segmentation labeling application."""
+import multiprocessing
 import numpy as np
 import pandas as pd
 from PIL import Image
 from pyglet.window import key
 from .graphics.image_view import ImageView
 from .graphics.palette import Palette
+from .segment import segment
 
 
 class DataLabeler(object):
@@ -29,8 +31,12 @@ class DataLabeler(object):
             None
 
         """
+        self._brush_size = 5
         self._opacity = 9
+        self._algorithm = 'felzenszwalb'
+        self._is_brush = multiprocessing.Value('b', True)
         self._image = image
+        self._segmented_image = segment(image, self._algorithm)
         self._metadata = metadata
         self._output_file = output_file
         self._segmentation = segmentation
@@ -47,6 +53,14 @@ class DataLabeler(object):
         self._view.add_on_key_press_handler(self._on_key_press)
         # setup a flag to determine if the application is running
         self._is_running = False
+
+    @property
+    def image(self):
+        with self._is_brush.get_lock():
+            if self._is_brush.value:
+                return self._image
+            else:
+                return self._segmented_image
 
     def _on_key_press(self, symbol: int) -> None:
         """
@@ -104,8 +118,8 @@ class DataLabeler(object):
     def _blit(self) -> None:
         """Blit local data structures to the GUI."""
         # setup the source image with an alpha channel
-        alpha = 255 * np.ones_like(self._image[..., 0:1])
-        img = np.concatenate([self._image, alpha], axis=-1)
+        alpha = 255 * np.ones_like(self.image[..., 0:1])
+        img = np.concatenate([self.image, alpha], axis=-1)
         # setup the segmentation image with an alpha channel scaled by the
         # opacity parameter of the application
         intensity = 255 * (self._opacity / 9)
@@ -114,11 +128,32 @@ class DataLabeler(object):
         # send the images to the window
         self._view.show([img, seg])
 
+    def _on_palette_change(self, palette_data: dict) -> None:
+        """
+        Respond to changes in the palette data.
+
+        Args:
+            palette_data: a dictionary of data from the palette process
+
+        Returns:
+            None
+
+        """
+        self._color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
+        with self._is_brush.get_lock():
+            self._is_brush.value = palette_data['paint'] == 'brush'
+        if palette_data['paint'] == 'brush':
+            self._brush_size = palette_data['brush_size']
+        elif palette_data['paint'] == 'super_pixel':
+            self._algorithm = palette_data['super_pixel']
+            arguments = palette_data[self._algorithm]
+            self._segmented_image = segment(self._image, self._algorithm, **arguments)
+
     def run(self) -> None:
         """Run the simulation."""
         # start the application and run until the flag is cleared
         self._is_running = True
-        palette, palette_thread = Palette.thread(self._metadata, lambda x: print(x))
+        Palette.thread(self._metadata, self._on_palette_change)
         while self._is_running:
             # process events from the window
             self._view.event_step()
