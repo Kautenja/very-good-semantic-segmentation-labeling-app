@@ -36,3 +36,4 @@ if ARGS.segmentation is not None:
 
 
 LABELER = DataLabeler(ARGS.image, ARGS.segmentation)
+LABELER.run()
