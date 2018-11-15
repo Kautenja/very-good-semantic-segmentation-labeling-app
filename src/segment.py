@@ -43,11 +43,8 @@ def segment(image, algorithm: str, mark: bool=True, **kwargs):
         image = sobel(rgb2gray(image))
     # apply the segmentation algorithm with given key word arguments
     segmentation = segment_image(image, **kwargs)
-    # if mark, return the original image with marked boundaries
-    if mark:
-        return (255 * mark_boundaries(image, segmentation)).astype('uint8')
-    # otherwise return the segmentation as is
-    return segmentation
+
+    return segmentation, (255 * mark_boundaries(image, segmentation)).astype('uint8')
 
 
 # define the outward facing API of this module

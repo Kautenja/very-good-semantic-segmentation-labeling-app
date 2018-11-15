@@ -42,6 +42,10 @@ class DataLabeler(object):
         raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
         numpy_array = np.frombuffer(raw_array, dtype='uint8')
         self._super_pixel = numpy_array.reshape(image.shape)
+        #
+        raw_array = multiprocessing.RawArray('i', int(np.prod(image.shape[:-1])))
+        numpy_array = np.frombuffer(raw_array, dtype='int32')
+        self._super_pixel_segments = numpy_array.reshape(image.shape[:-1])
         # if there is no segmentation, initialize as the first label
         if self._segmentation is None:
             self._segmentation = np.zeros_like(image, dtype='uint8')
@@ -104,7 +108,16 @@ class DataLabeler(object):
             None
 
         """
-        print(mouse_x, mouse_y)
+        # get the lock for the brush value
+        with self._is_brush.get_lock():
+            # if brush mode, return the normal image
+            if self._is_brush.value:
+                print('brush')
+            else:
+                print('super pixel')
+                super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
+                mask = self._super_pixel_segments == super_pixel
+                self._super_pixel[mask] = (0,0,0)
 
     def _on_mouse_drag(self, mouse_x: int, mouse_y: int) -> None:
         """
@@ -152,7 +165,8 @@ class DataLabeler(object):
         if palette_data['paint'] == 'super_pixel':
             algorithm = palette_data['super_pixel']
             arguments = palette_data[algorithm]
-            self._super_pixel[:] = segment(self._image, algorithm, **arguments)
+            segs = segment(self._image, algorithm, **arguments)
+            self._super_pixel_segments[:], self._super_pixel[:] = segs
 
     def run(self) -> None:
         """Run the simulation."""
