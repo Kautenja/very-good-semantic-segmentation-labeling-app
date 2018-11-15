@@ -57,12 +57,15 @@ class DataLabeler(object):
         self._is_running = False
 
     @property
-    def image(self):
+    def image(self) -> np.ndarray:
+        """Return the image to display under the labeling overlay."""
+        # get the lock for the brush value
         with self._is_brush.get_lock():
+            # if brush mode, return the normal image
             if self._is_brush.value:
                 return self._image
-            else:
-                return self._super_pixel
+            # otherwise in super pixel mode, return the super pixel
+            return self._super_pixel
 
     def _on_key_press(self, symbol: int) -> None:
         """
