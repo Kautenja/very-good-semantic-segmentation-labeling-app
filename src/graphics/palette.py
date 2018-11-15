@@ -190,148 +190,50 @@ class Palette(object):
         selected = self._app.getRadioButton('super_pixel')
         print(selected)
 
-    def _did_change_felzenszwalb_scale(self, _) -> None:
-        if self._app.getEntry('felzenszwalb_scale') == "":
-            default = self.DEFAULTS['felzenszwalb']['scale']
-            self.segmentation_args['felzenszwalb']['scale'] = default
-            self._app.setEntryWaitingValidation('felzenszwalb_scale')
+    def _did_change_entry(self, title, alg, param):
+        if self._app.getEntry(title) == "":
+            self.segmentation_args[alg][param] = self.DEFAULTS[alg][param]
+            self._app.setEntryWaitingValidation(title)
             return
         try:
-            selected = int(self._app.getEntry('felzenszwalb_scale'))
-            self.segmentation_args['felzenszwalb']['scale'] = selected
-            self._app.setEntryValid('felzenszwalb_scale')
+            selected = int(self._app.getEntry(title))
+            self.segmentation_args[alg][param] = selected
+            self._app.setEntryValid(title)
         except ValueError:
-            self._app.setEntryInvalid('felzenszwalb_scale')
+            self._app.setEntryInvalid(title)
+
+    def _did_change_felzenszwalb_scale(self, _) -> None:
+
 
     def _did_change_felzenszwalb_sigma(self, _) -> None:
-        if self._app.getEntry('felzenszwalb_sigma') == "":
-            default = self.DEFAULTS['felzenszwalb']['sigma']
-            self.segmentation_args['felzenszwalb']['sigma'] = default
-            self._app.setEntryWaitingValidation('felzenszwalb_sigma')
-            return
-        try:
-            selected = float(self._app.getEntry('felzenszwalb_sigma'))
-            self.segmentation_args['felzenszwalb']['sigma'] = selected
-            self._app.setEntryValid('felzenszwalb_sigma')
-        except ValueError:
-            self._app.setEntryInvalid('felzenszwalb_sigma')
+        self._did_change_entry('felzenszwalb_sigma', 'felzenszwalb', 'sigma')
 
     def _did_change_felzenszwalb_min_size(self, _) -> None:
-        if self._app.getEntry('felzenszwalb_min_size') == "":
-            default = self.DEFAULTS['felzenszwalb']['min_size']
-            self.segmentation_args['felzenszwalb']['min_size'] = default
-            self._app.setEntryWaitingValidation('felzenszwalb_min_size')
-            return
-        try:
-            selected = int(self._app.getEntry('felzenszwalb_min_size'))
-            self.segmentation_args['felzenszwalb']['min_size'] = selected
-            self._app.setEntryValid('felzenszwalb_min_size')
-        except ValueError:
-            self._app.setEntryInvalid('felzenszwalb_min_size')
+        self._did_change_entry('felzenszwalb_min_size', 'felzenszwalb', 'min_size')
 
     def _did_change_slic_num_segments(self, _) -> None:
-        if self._app.getEntry('slic_n_segments') == "":
-            default = self.DEFAULTS['slic']['n_segments']
-            self.segmentation_args['slic']['n_segments'] = default
-            self._app.setEntryWaitingValidation('slic_n_segments')
-            return
-        try:
-            selected = int(self._app.getEntry('slic_n_segments'))
-            self.segmentation_args['slic']['n_segments'] = selected
-            self._app.setEntryValid('slic_n_segments')
-        except ValueError:
-            self._app.setEntryInvalid('slic_n_segments')
+        self._did_change_entry('slic_n_segments', 'slic', 'n_segments')
 
     def _did_change_slic_compactness(self, _) -> None:
-        if self._app.getEntry('slic_compactness') == "":
-            default = self.DEFAULTS['slic']['compactness']
-            self.segmentation_args['slic']['compactness'] = default
-            self._app.setEntryWaitingValidation('slic_compactness')
-            return
-        try:
-            selected = float(self._app.getEntry('slic_compactness'))
-            self.segmentation_args['slic']['compactness'] = selected
-            self._app.setEntryValid('slic_compactness')
-        except ValueError:
-            self._app.setEntryInvalid('slic_compactness')
+        self._did_change_entry('slic_compactness', 'slic', 'compactness')
 
     def _did_change_slic_sigma(self, _) -> None:
-        if self._app.getEntry('slic_sigma') == "":
-            default = self.DEFAULTS['slic']['sigma']
-            self.segmentation_args['slic']['sigma'] = default
-            self._app.setEntryWaitingValidation('slic_sigma')
-            return
-        try:
-            selected = float(self._app.getEntry('slic_sigma'))
-            self.segmentation_args['slic']['sigma'] = selected
-            self._app.setEntryValid('slic_sigma')
-        except ValueError:
-            self._app.setEntryInvalid('slic_sigma')
+        self._did_change_entry('slic_sigma', 'slic', 'sigma')
 
     def _did_change_quickshift_kernel_size(self, _) -> None:
-        if self._app.getEntry('quickshift_kernel_size') == "":
-            default = self.DEFAULTS['quickshift']['kernel_size']
-            self.segmentation_args['quickshift']['kernel_size'] = default
-            self._app.setEntryWaitingValidation('quickshift_kernel_size')
-            return
-        try:
-            selected = int(self._app.getEntry('quickshift_kernel_size'))
-            self.segmentation_args['quickshift']['kernel_size'] = selected
-            self._app.setEntryValid('quickshift_kernel_size')
-        except ValueError:
-            self._app.setEntryInvalid('quickshift_kernel_size')
+        self._did_change_entry('quickshift_kernel_size', 'quickshift', 'kernel_size')
 
     def _did_change_quickshift_max_distance(self, _) -> None:
-        if self._app.getEntry('quickshift_max_dist') == "":
-            default = self.DEFAULTS['quickshift']['max_dist']
-            self.segmentation_args['quickshift']['max_dist'] = default
-            self._app.setEntryWaitingValidation('quickshift_max_dist')
-            return
-        try:
-            selected = int(self._app.getEntry('quickshift_max_dist'))
-            self.segmentation_args['quickshift']['max_dist'] = selected
-            self._app.setEntryValid('quickshift_max_dist')
-        except ValueError:
-            self._app.setEntryInvalid('quickshift_max_dist')
+        self._did_change_entry('quickshift_max_dist', 'quickshift', 'max_dist')
 
     def _did_change_quickshift_ratio(self, _) -> None:
-        if self._app.getEntry('quickshift_ratio') == "":
-            default = self.DEFAULTS['quickshift']['ratio']
-            self.segmentation_args['quickshift']['ratio'] = default
-            self._app.setEntryWaitingValidation('quickshift_ratio')
-            return
-        try:
-            selected = float(self._app.getEntry('quickshift_ratio'))
-            self.segmentation_args['quickshift']['ratio'] = selected
-            self._app.setEntryValid('quickshift_ratio')
-        except ValueError:
-            self._app.setEntryInvalid('quickshift_ratio')
+        self._did_change_entry('quickshift_ratio', 'quickshift', 'ratio')
 
     def _did_change_watershed_markers(self, _) -> None:
-        if self._app.getEntry('watershed_markers') == "":
-            default = self.DEFAULTS['watershed']['markers']
-            self.segmentation_args['watershed']['markers'] = default
-            self._app.setEntryWaitingValidation('watershed_markers')
-            return
-        try:
-            selected = int(self._app.getEntry('watershed_markers'))
-            self.segmentation_args['watershed']['markers'] = selected
-            self._app.setEntryValid('watershed_markers')
-        except ValueError:
-            self._app.setEntryInvalid('watershed_markers')
+        self._did_change_entry('watershed_markers', 'watershed', 'markers')
 
     def _did_change_watershed_compactness(self, _) -> None:
-        if self._app.getEntry('watershed_compactness') == "":
-            default = self.DEFAULTS['watershed']['compactness']
-            self.segmentation_args['watershed']['compactness'] = default
-            self._app.setEntryWaitingValidation('watershed_compactness')
-            return
-        try:
-            selected = float(self._app.getEntry('watershed_compactness'))
-            self.segmentation_args['watershed']['compactness'] = selected
-            self._app.setEntryValid('watershed_compactness')
-        except ValueError:
-            self._app.setEntryInvalid('watershed_compactness')
+        self._did_change_entry('watershed_compactness', 'watershed', 'compactness')
 
     def _did_change_label(self, _) -> None:
         selected = self._app.getListBox('labels')[0]
