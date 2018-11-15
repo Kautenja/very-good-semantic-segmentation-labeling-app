@@ -4,6 +4,7 @@ import pandas as pd
 from PIL import Image
 from pyglet.window import key
 from .graphics.image_view import ImageView
+from .graphics.palette import Palette
 
 
 class DataLabeler(object):
@@ -117,6 +118,7 @@ class DataLabeler(object):
         """Run the simulation."""
         # start the application and run until the flag is cleared
         self._is_running = True
+        palette, palette_thread = Palette.thread(self._metadata, lambda x: print(x))
         while self._is_running:
             # process events from the window
             self._view.event_step()
