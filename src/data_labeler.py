@@ -35,6 +35,7 @@ class DataLabeler(object):
         # setup the window for the simulator and register event handlers
         self._view = ImageView('Data Labeler', image.shape[:2])
         self._view.add_on_mouse_press_handler(self._on_mouse_press)
+        self._view.add_on_mouse_drag_handler(self._on_mouse_drag)
         self._view.add_on_key_press_handler(self._on_key_press)
         # setup a flag to determine if the application is running
         self._is_running = False
@@ -72,16 +73,21 @@ class DataLabeler(object):
             None
 
         """
-        pass
-        # # set the LED on the window
-        # led = self._view.set_led(mouse_x, mouse_y, self.led_color)
-        # # if the index of the LED is None, i.e., no LED clicked, return
-        # if led is None:
-        #     return
-        # # update the target vector
-        # self._output_vector[led, 0] = CODES[self.color]
-        # # set the intensity for the color
-        # self._output_vector[led, 1] = self.intensity
+        print(mouse_x, mouse_y)
+
+    def _on_mouse_drag(self, mouse_x: int, mouse_y: int) -> None:
+        """
+        Handle a callback when a mouse drag occurs.
+
+        Args:
+            mouse_x: the x pixel of the mouse
+            mouse_y: the y pixel of the mouse
+
+        Returns:
+            None
+
+        """
+        print(mouse_x, mouse_y)
 
     def _blit(self) -> None:
         """Blit local data structures to the GUI."""
