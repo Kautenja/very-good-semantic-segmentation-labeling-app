@@ -31,12 +31,11 @@ class DataLabeler(object):
             None
 
         """
-        self._brush_size = 5
         self._opacity = 9
-        self._algorithm = 'felzenszwalb'
+        self._brush_size = multiprocessing.Value('i', 5)
         self._is_brush = multiprocessing.Value('b', True)
         self._image = image
-        self._segmented_image = segment(image, self._algorithm)
+        self._segmented_image = segment(image, 'felzenszwalb')
         self._metadata = metadata
         self._output_file = output_file
         self._segmentation = segmentation
@@ -142,12 +141,12 @@ class DataLabeler(object):
         self._color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
         with self._is_brush.get_lock():
             self._is_brush.value = palette_data['paint'] == 'brush'
-        if palette_data['paint'] == 'brush':
-            self._brush_size = palette_data['brush_size']
-        elif palette_data['paint'] == 'super_pixel':
-            self._algorithm = palette_data['super_pixel']
-            arguments = palette_data[self._algorithm]
-            self._segmented_image = segment(self._image, self._algorithm, **arguments)
+        with self._brush_size.get_lock():
+            self._brush_size.value = palette_data['brush_size']
+        if palette_data['paint'] == 'super_pixel':
+            algorithm = palette_data['super_pixel']
+            arguments = palette_data[algorithm]
+            self._segmented_image = segment(self._image, algorithm, **arguments)
 
     def run(self) -> None:
         """Run the simulation."""

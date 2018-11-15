@@ -10,9 +10,10 @@ from skimage.util import img_as_float
 
 
 # a list of segmentation algorithms supported by this module
-SEGMENTATION = [felzenszwalb, slic, quickshift, watershed]
+SEGMENTATION_LIST = [felzenszwalb, slic, quickshift, watershed]
 # a mapping of string method names to their references in memory
-SEGMENTATION = {alg.__name__: alg for alg in SEGMENTATION}
+SEGMENTATION = {alg.__name__: alg for alg in SEGMENTATION_LIST}
+
 
 
 def segment(image, algorithm: str, mark: bool=True, **kwargs):
@@ -44,7 +45,7 @@ def segment(image, algorithm: str, mark: bool=True, **kwargs):
     segmentation = segment_image(image, **kwargs)
     # if mark, return the original image with marked boundaries
     if mark:
-        return mark_boundaries(image, segmentation)
+        return (255 * mark_boundaries(image, segmentation)).astype('uint8')
     # otherwise return the segmentation as is
     return segmentation
 
