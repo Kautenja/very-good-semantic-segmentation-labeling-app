@@ -1,2 +1,2 @@
-# Very Good Semantic Segmentation Labeler
+# Very Good Semantic Segmentation Labeling App
 
