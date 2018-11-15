@@ -1,8 +1,9 @@
 """A palette for working with semantic segmentation labeling."""
 import sys
-import pandas as pd
-from appJar import gui
 from copy import deepcopy
+from multiprocessing import Process
+from appJar import gui
+import pandas as pd
 
 
 class Palette(object):
@@ -43,11 +44,11 @@ class Palette(object):
 
     def __init__(self, metadata: pd.DataFrame, callback=None) -> None:
         """
-        .
+        Initialize a new palette.
 
         Args:
-            metadata:
-            callback:
+            metadata: the label metadata for the palette
+            callback: a callback method for getting updates from the palette
 
         Returns:
             None
@@ -68,6 +69,26 @@ class Palette(object):
         sys.argv = argv
         self._window_did_load(self._app)
         self._view_did_load(self._app)
+
+    @classmethod
+    def thread(cls, metadata: pd.DataFrame, callback=None):
+        """
+        Initialize and start a palette on a background thread.
+
+        Args:
+            metadata: the label metadata for the palette
+            callback: a callback method for getting updates from the palette
+
+        Returns:
+            a tuple of:
+            - the instance of palette
+            - the background thread running the palette
+
+        """
+        palette = cls(metadata, callback)
+        process = Process(target=palette.run)
+        process.start()
+        return palette, process
 
     # MARK: View Hierarchy
 
