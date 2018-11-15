@@ -1,4 +1,4 @@
-"""A data labeler for generating LED alert and audio alert systems."""
+"""A semantic segmentation labeling application."""
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -7,8 +7,12 @@ from .graphics.image_view import ImageView
 
 
 class DataLabeler(object):
+    """A semantic segmentation labeling application."""
 
-    def __init__(self, image: np.ndarray, metadata: pd.DataFrame, output_file: str,
+    def __init__(self,
+        image: np.ndarray,
+        metadata: pd.DataFrame,
+        output_file: str,
         segmentation: np.ndarray=None
     ) -> None:
         """
@@ -32,9 +36,9 @@ class DataLabeler(object):
         # if there is no segmentation, initialize as the first label
         if self._segmentation is None:
             self._segmentation = np.zeros_like(image, dtype='uint8')
-            self._segmentation[:, :, range(3)] = metadata['rgb'][1]
-        # set the default color to black
-        self._color = (0, 0, 0)
+            self._segmentation[:, :, range(3)] = metadata['rgb'][0]
+        # set the default color to the first label
+        self._color = metadata['rgb'][0]
         # setup the window for the simulator and register event handlers
         self._view = ImageView('Data Labeler', image.shape[:2])
         self._view.add_on_mouse_press_handler(self._on_mouse_press)
