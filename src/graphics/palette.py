@@ -1,4 +1,5 @@
 """A palette for working with semantic segmentation labeling."""
+import sys
 import pandas as pd
 from appJar import gui
 from copy import deepcopy
@@ -52,7 +53,12 @@ class Palette(object):
         # create an application window
         height = self.LABEL_HEIGHT * len(metadata) + self.HEIGHT
         dims = '{}x{}'.format(self.WIDTH, height)
+        # remove the command line arguments to resolve an error in AppJar
+        argv = deepcopy(sys.argv)
+        sys.argv = sys.argv[0:1]
         self._app = gui(self.__class__.__name__, dims)
+        # restore the command line arguments
+        sys.argv = argv
         self._window_did_load(self._app)
         self._view_did_load(self._app)
 
@@ -203,7 +209,7 @@ class Palette(object):
             self._app.setEntryInvalid(title)
 
     def _did_change_felzenszwalb_scale(self, _) -> None:
-
+        self._did_change_entry('felzenszwalb_scale', 'felzenszwalb', 'scale')
 
     def _did_change_felzenszwalb_sigma(self, _) -> None:
         self._did_change_entry('felzenszwalb_sigma', 'felzenszwalb', 'sigma')
