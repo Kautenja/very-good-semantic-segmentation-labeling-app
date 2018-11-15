@@ -1,16 +1,16 @@
 """A data labeler for generating LED alert and audio alert systems."""
-import os
-import shutil
 import numpy as np
+import pandas as pd
 from PIL import Image
 from pyglet.window import key
-from tqdm import tqdm
 from .graphics.image_view import ImageView
 
 
 class DataLabeler(object):
 
-    def __init__(self, image: np.ndarray, metadata, segmentation: np.ndarray=None) -> None:
+    def __init__(self, image: np.ndarray, metadata: pd.DataFrame,
+        segmentation: np.ndarray=None
+    ) -> None:
         """
         Initialize a new data labeling application.
 
@@ -24,7 +24,12 @@ class DataLabeler(object):
 
         """
         self._image = image
+        self._metadata = metadata
         self._segmentation = segmentation
+        # if there is no segmentation, initialize as the first label
+        if self._segmentation is None:
+            self._segmentation = np.zeros_like(image)
+            self._segmentation[:, :, :] = metadata['rgb'][0]
         # set the default color to black
         self._color = (0, 0, 0)
         # setup the window for the simulator and register event handlers
@@ -45,16 +50,15 @@ class DataLabeler(object):
             None
 
         """
-        pass
-        # # if key is return, move to the next frame
-        # if symbol == key.RETURN:
-        #     self._can_advance = True
-        # # set the color and intensity based on the values in the mappings.
-        # # Because the dictionaries have mutually exclusive keys, use the get
-        # # method for both and default to the current value when the key isn't
-        # # found.
-        # self._color = COLORS.get(symbol, self._color)
-        # self._intensity = self._intensity_map.get(symbol, self._intensity)
+        # if key is save, save the segmentation to disk
+        if symbol == key.S:
+            print('saving')
+        # if key is escape, save the segmentation to disk and quit
+        elif symbol == key.ESCAPE:
+            print('saving and quitting')
+        # if the key is in [48, 59] it's numeric, adjust the opacity overlay
+        elif 48 <= symbol <= 59:
+            print('setting opacity to {}'.format(symbol - 48))
 
     def _on_mouse_press(self, mouse_x: int, mouse_y: int) -> None:
         """
@@ -79,6 +83,10 @@ class DataLabeler(object):
         # # set the intensity for the color
         # self._output_vector[led, 1] = self.intensity
 
+    def _blit(self) -> None:
+        """Blit local data structures to the GUI."""
+        self._view.show(self._image)
+
     def run(self) -> None:
         """Run the simulation."""
         # start the application and run until the flag is cleared
@@ -86,6 +94,8 @@ class DataLabeler(object):
         while self._is_running:
             # process events from the window
             self._view.event_step()
+            # blit changes to the screen
+            self._blit()
 
 
 # explicitly define the outward facing API of this module
