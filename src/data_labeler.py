@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from pyglet.window import key
+from skimage.segmentation import mark_boundaries
 from .graphics.image_view import ImageView
 from .graphics.palette import Palette
 from .segment import segment
@@ -42,7 +43,7 @@ class DataLabeler(object):
         raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
         numpy_array = np.frombuffer(raw_array, dtype='uint8')
         self._super_pixel = numpy_array.reshape(image.shape)
-        #
+        # setup an array for the super pixel segmentation map
         raw_array = multiprocessing.RawArray('i', int(np.prod(image.shape[:-1])))
         numpy_array = np.frombuffer(raw_array, dtype='int32')
         self._super_pixel_segments = numpy_array.reshape(image.shape[:-1])
@@ -51,7 +52,9 @@ class DataLabeler(object):
             self._segmentation = np.zeros_like(image, dtype='uint8')
             self._segmentation[:, :, range(3)] = metadata['rgb'][0]
         # set the default color to the first label
-        self._color = metadata['rgb'][0]
+        raw_array = multiprocessing.RawArray('b', 3)
+        self._color = np.frombuffer(raw_array, dtype='uint8')
+        self._color[:] = metadata['rgb'][0]
         # setup the window for the simulator and register event handlers
         self._view = ImageView('Data Labeler', image.shape[:2])
         self._view.add_on_mouse_press_handler(self._on_mouse_press)
@@ -112,9 +115,8 @@ class DataLabeler(object):
         with self._is_brush.get_lock():
             # if brush mode, return the normal image
             if self._is_brush.value:
-                print('brush')
+                pass
             else:
-                print('super pixel')
                 super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
                 mask = self._super_pixel_segments == super_pixel
                 self._segmentation[mask] = self._color
@@ -131,20 +133,34 @@ class DataLabeler(object):
             None
 
         """
-        print(mouse_x, mouse_y)
+        # get the lock for the brush value
+        with self._is_brush.get_lock():
+            # if brush mode, return the normal image
+            if self._is_brush.value:
+                pass
+            else:
+                super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
+                mask = self._super_pixel_segments == super_pixel
+                self._segmentation[mask] = self._color
 
     def _blit(self) -> None:
         """Blit local data structures to the GUI."""
         # setup the source image with an alpha channel
         alpha = 255 * np.ones_like(self.image[..., 0:1])
-        img = np.concatenate([self.image, alpha], axis=-1)
+        img = np.concatenate([self._image, alpha], axis=-1)
+        # setup the super pixel segmentations
+        alpha = np.zeros_like(self.image)
+        sup = mark_boundaries(alpha, self._super_pixel_segments,
+            color=(127, 127, 127)
+        )
+        sup = np.concatenate([sup, sup[..., 0:1]], axis=-1).astype('uint8')
         # setup the segmentation image with an alpha channel scaled by the
         # opacity parameter of the application
         intensity = 255 * (self._opacity / 9)
         alpha = intensity * np.ones_like(self._segmentation[..., 0:1])
         seg = np.concatenate([self._segmentation, alpha], axis=-1).astype('uint8')
         # send the images to the window
-        self._view.show([img, seg])
+        self._view.show([img, seg, sup])
 
     def _on_palette_change(self, palette_data: dict) -> None:
         """
@@ -157,16 +173,24 @@ class DataLabeler(object):
             None
 
         """
-        self._color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
+        # set the color from the metadata
+        self._color[:] = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
+        # set the is brush flag
         with self._is_brush.get_lock():
             self._is_brush.value = palette_data['paint'] == 'brush'
+        # set the brush size variable
         with self._brush_size.get_lock():
             self._brush_size.value = palette_data['brush_size']
+        # if the palette is in super pixel mode, get that data
         if palette_data['paint'] == 'super_pixel':
             algorithm = palette_data['super_pixel']
             arguments = palette_data[algorithm]
             segs = segment(self._image, algorithm, **arguments)
             self._super_pixel_segments[:], self._super_pixel[:] = segs
+        # otherwise set the super pixel data back to 0
+        else:
+            self._super_pixel_segments[:] = 0
+            self._super_pixel[:] = 0
 
     def run(self) -> None:
         """Run the simulation."""

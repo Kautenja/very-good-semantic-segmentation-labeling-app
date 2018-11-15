@@ -12,7 +12,7 @@ class Palette(object):
     # the width of the window
     WIDTH = 500
     # the height of the window
-    HEIGHT = 700
+    HEIGHT = 750
     # the height per label entry
     LABEL_HEIGHT = 10
     # the default arguments for the view controller
