@@ -86,7 +86,7 @@ class Palette(object):
 
         """
         palette = cls(metadata, callback)
-        process = Process(target=palette.run)
+        process = Process(target=palette.run, daemon=True)
         process.start()
         return palette, process
 
@@ -287,3 +287,7 @@ class Palette(object):
     def run(self) -> None:
         """Start the application."""
         self._app.go()
+
+    def stop(self) -> None:
+        """Stop the application."""
+        pass
