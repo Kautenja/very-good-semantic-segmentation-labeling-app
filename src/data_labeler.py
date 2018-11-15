@@ -118,6 +118,7 @@ class DataLabeler(object):
             self._view.event_step()
             # blit changes to the screen
             self._blit()
+        # close the image view
         self._view.close()
 
 
