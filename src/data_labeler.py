@@ -5,33 +5,31 @@ import numpy as np
 from PIL import Image
 from pyglet.window import key
 from tqdm import tqdm
-from .graphics import ImageView
+from .graphics.image_view import ImageView
 
 
 class DataLabeler(object):
 
-    def __init__(self, image_shape: tuple) -> None:
-        """Initialize a new data labeling application."""
+    def __init__(self, image: np.ndarray, segmentation: np.ndarray=None) -> None:
+        """
+        Initialize a new data labeling application.
+
+        Args:
+            image: the image to segment
+            segmentation: an existing segmentation if there is one
+
+        Returns:
+            None
+
+        """
+        self._image = image
+        self._segmentation = segmentation
         # set the default color to black
         self._color = (0, 0, 0)
-        # set a flag for when to advance to the next image
-        self._can_advance = False
-        # set the output vector to none (initialized by calls to run)
-        self._output_vector = None
-        # setup the window for the simulator
-        self._view = ImageView('Data Labeler', image_shape)
+        # setup the window for the simulator and register event handlers
+        self._view = ImageView('Data Labeler', image.shape[:2])
         self._view.add_on_mouse_press_handler(self._on_mouse_press)
         self._view.add_on_key_press_handler(self._on_key_press)
-        # # setup a callback on the window to handle keyboard events
-        # def on_key_press(symbol: int, *args) -> None:
-        #     """Respond to a pyglet keyboard key press event."""
-        #     return self._on_key_press(symbol)
-        # self._view.add_event_handler(on_key_press)
-        # # setup a callback on the window to handle mouse events
-        # def on_mouse_press(mouse_x: int, mouse_y: int, *args) -> None:
-        #     """Respond to a pyglet mouse click event."""
-        #     return self._on_mouse_press(mouse_x, mouse_y)
-        # self._view.add_event_handler(on_mouse_press)
 
     def _on_key_press(self, symbol: int) -> None:
         """
