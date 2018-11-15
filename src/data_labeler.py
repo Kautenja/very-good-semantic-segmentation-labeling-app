@@ -10,12 +10,13 @@ from .graphics.image_view import ImageView
 
 class DataLabeler(object):
 
-    def __init__(self, image: np.ndarray, segmentation: np.ndarray=None) -> None:
+    def __init__(self, image: np.ndarray, metadata, segmentation: np.ndarray=None) -> None:
         """
         Initialize a new data labeling application.
 
         Args:
             image: the image to segment
+            metadata: the labeling metadata for the segmentation
             segmentation: an existing segmentation if there is one
 
         Returns:
