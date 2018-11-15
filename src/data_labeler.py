@@ -30,6 +30,8 @@ class DataLabeler(object):
         self._view = ImageView('Data Labeler', image.shape[:2])
         self._view.add_on_mouse_press_handler(self._on_mouse_press)
         self._view.add_on_key_press_handler(self._on_key_press)
+        # setup a flag to determine if the application is running
+        self._is_running = False
 
     def _on_key_press(self, symbol: int) -> None:
         """
@@ -76,35 +78,13 @@ class DataLabeler(object):
         # # set the intensity for the color
         # self._output_vector[led, 1] = self.intensity
 
-    # def run(self) -> None:
-    #     """Run the simulation."""
-    #     # iterate over the frames in the input video
-    #     for filename in tqdm(sorted(os.listdir(self.data_path))):
-    #         # reset the output vector
-    #         self._output_vector = np.zeros((sum(self._view.num_leds), 2))
-    #         # reset the LEDs
-    #         self._view.reset_leds()
-    #         # ignore files that aren't images
-    #         if filename[-4:] not in {'.jpg', '.png'}:
-    #             continue
-    #         # open the image from disk
-    #         image = Image.open(os.path.join(self.data_path, filename))
-    #         frame = np.array(image)
-    #         # update the window with the frame and predicted values
-    #         self._view.update(frame, None, None, None)
-    #         # wait for the advance key event to occur
-    #         while not self._can_advance:
-    #             self._view.event_step()
-    #         self._can_advance = False
-    #         # save the output vector to disk
-    #         outfile = filename.replace('.jpg', '.npz').replace('.png', '.npz')
-    #         outfile = os.path.join(self.output_dir, outfile)
-    #         np.savez_compressed(outfile, y=self._output_vector)
-    #         # print to the console if in verbose mode
-    #         if self.verbose:
-    #             print(outfile)
-    #             print(self._output_vector)
-    #             print()
+    def run(self) -> None:
+        """Run the simulation."""
+        # start the application and run until the flag is cleared
+        self._is_running = True
+        while self._is_running:
+            # process events from the window
+            self._view.event_step()
 
 
 # explicitly define the outward facing API of this module
