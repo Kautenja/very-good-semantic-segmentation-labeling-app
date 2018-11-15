@@ -51,15 +51,15 @@ ARGS.metadata = pd.read_csv(ARGS.metadata)
 ARGS.metadata['rgb'] = ARGS.metadata['rgb'].apply(ast.literal_eval)
 
 
+# set the output file if it's automatic
+if ARGS.output_file == 'auto':
+    ARGS.output_file = ARGS.segmentation
+
+
 # load the a priori segmentation if there is one
 if ARGS.segmentation is not None:
     with Image.open(ARGS.segmentation) as segmentation_file:
         ARGS.segmentation = np.array(segmentation_file)
-
-
-# set the output file if it's automatic
-if ARGS.output_file == 'auto':
-    ARGS.output_file = ARGS.segmentation
 
 
 # create the data labeler application
