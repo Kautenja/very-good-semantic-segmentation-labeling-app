@@ -20,9 +20,9 @@ class ImageView(object):
         # setup the window for this view
         self._window = Window(caption, *image_shape)
 
-    def update(self, image: 'np.ndarray') -> None:
+    def show(self, image: 'np.ndarray') -> None:
         """
-        Update the window with the given data.
+        Show the window with the given data.
 
         Args:
             image: the image to display on the image view
