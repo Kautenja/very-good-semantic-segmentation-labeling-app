@@ -62,6 +62,22 @@ class ImageView(object):
             return handler(mouse_x, mouse_y)
         self.add_event_handler(on_mouse_press)
 
+    def add_on_mouse_drag_handler(self, handler) -> None:
+        """
+        Add an on mouse drag event handler to the view.
+
+        Args:
+            handler: a callable mouse drag handler to register with the view
+
+        Returns:
+            None
+
+        """
+        def on_mouse_drag(mouse_x: int, mouse_y: int, *args) -> None:
+            """Respond to a pyglet mouse drag event."""
+            return handler(mouse_x, mouse_y)
+        self.add_event_handler(on_mouse_drag)
+
     def add_on_key_press_handler(self, handler) -> None:
         """
         Add an on key press event handler to the view.
