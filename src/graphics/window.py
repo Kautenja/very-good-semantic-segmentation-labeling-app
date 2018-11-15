@@ -54,7 +54,7 @@ class Window(object):
         self._window = _Window(
             caption=self.caption,
             height=self.height,
-            width=self.width + 200,
+            width=self.width,
             vsync=False,
             resizable=False,
         )
