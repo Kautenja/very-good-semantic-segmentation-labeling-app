@@ -54,9 +54,9 @@ class Window(object):
         self._window = _Window(
             caption=self.caption,
             height=self.height,
-            width=self.width,
+            width=self.width + 200,
             vsync=False,
-            resizable=True,
+            resizable=False,
         )
 
     def show(self, frame, _flip: bool=True) -> None:
@@ -69,43 +69,37 @@ class Window(object):
         Returns:
             None
         """
-        if isinstance(frame, (list, tuple)):
-            self._window.clear()
-            self._window.switch_to()
-            self._window.dispatch_events()
-            glEnable(GL_BLEND)
-            for _frame in frame:
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-                self.show(_frame, _flip=False)
-            self._window.flip()
-            return
-        # check that the frame has the correct dimensions
-        if len(frame.shape) != 3:
-            raise ValueError('frame should have shape with only 3 dimensions')
         # open the window if it isn't open already
         if not self.is_open:
             self.open()
         # prepare the window for the next frame
-        if _flip:
-            self._window.clear()
-            self._window.switch_to()
-            self._window.dispatch_events()
-        # create an image data object
-        image = _ImageData(
-            frame.shape[1],
-            frame.shape[0],
-            self.encoding,
-            frame.tobytes(),
-            pitch=frame.shape[1] * -len(self.encoding)
-        )
-        # send the image to the window
-        image.blit(0, 0, width=self._window.width, height=self._window.height)
-
-        if _flip:
-            self._window.flip()
+        self._window.clear()
+        self._window.switch_to()
+        self._window.dispatch_events()
+        # create the list of frames from the inputs
+        frames = frame if isinstance(frame, (list, tuple)) else [frame]
+        # setup alpha channel blending
+        glEnable(GL_BLEND)
+        # iterate over the frames in the input
+        for frame in frames:
+            # create an image data object
+            image = _ImageData(
+                frame.shape[1],
+                frame.shape[0],
+                self.encoding,
+                frame.tobytes(),
+                pitch=frame.shape[1] * -len(self.encoding)
+            )
+            # set the alpha channel blend mode for the image
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            # blit the image to the window
+            image.blit(0, 0, width=self._window.width, height=self._window.height)
+        # flip the changes to the window
+        self._window.flip()
 
     def close(self) -> None:
         """Close the window."""
+        # if the window is open, close and delete the window
         if self.is_open:
             self._window.close()
             self._window = None
