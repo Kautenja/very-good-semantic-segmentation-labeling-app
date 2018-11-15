@@ -287,7 +287,3 @@ class Palette(object):
     def run(self) -> None:
         """Start the application."""
         self._app.go()
-
-    def stop(self) -> None:
-        """Stop the application."""
-        pass
