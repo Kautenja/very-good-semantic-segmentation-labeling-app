@@ -101,6 +101,10 @@ class ImageView(object):
         self._window.window.dispatch_event('on_draw')
         self._window.window.flip()
 
+    def close(self):
+        """Close the view."""
+        self._window.close()
+
 
 # explicitly define the outward facing API of this module
 __all__ = [ImageView.__name__]

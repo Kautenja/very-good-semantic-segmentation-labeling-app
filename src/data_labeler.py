@@ -8,7 +8,7 @@ from .graphics.image_view import ImageView
 
 class DataLabeler(object):
 
-    def __init__(self, image: np.ndarray, metadata: pd.DataFrame,
+    def __init__(self, image: np.ndarray, metadata: pd.DataFrame, output_file: str,
         segmentation: np.ndarray=None
     ) -> None:
         """
@@ -17,6 +17,7 @@ class DataLabeler(object):
         Args:
             image: the image to segment
             metadata: the labeling metadata for the segmentation
+            output_file: the output file to save segmentations to
             segmentation: an existing segmentation if there is one
 
         Returns:
@@ -26,6 +27,7 @@ class DataLabeler(object):
         self._opacity = 9
         self._image = image
         self._metadata = metadata
+        self._output_file = output_file
         self._segmentation = segmentation
         # if there is no segmentation, initialize as the first label
         if self._segmentation is None:
@@ -55,9 +57,12 @@ class DataLabeler(object):
         # if key is save, save the segmentation to disk
         if symbol == key.S:
             print('saving')
+            Image.fromarray(self._segmentation).save(self._output_file)
         # if key is escape, save the segmentation to disk and quit
         elif symbol == key.ESCAPE:
             print('saving and quitting')
+            Image.fromarray(self._segmentation).save(self._output_file)
+            self._is_running = False
         # if the key is in [48, 59] it's numeric, adjust the opacity overlay
         elif 48 <= symbol <= 59:
             print('setting opacity to {}'.format(symbol - 48))
@@ -113,6 +118,7 @@ class DataLabeler(object):
             self._view.event_step()
             # blit changes to the screen
             self._blit()
+        self._view.close()
 
 
 # explicitly define the outward facing API of this module

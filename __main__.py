@@ -21,6 +21,13 @@ PARSER.add_argument('--metadata', '-m',
     help='the labeling metadata as a .csv file.',
     required=True,
 )
+# add an argument for the output filename
+PARSER.add_argument('--output_file', '-o',
+    type=str,
+    help='the name of the output file to save.',
+    default='auto',
+    required=False,
+)
 # add an argument for the an existing segmentation to start with
 PARSER.add_argument('--segmentation', '-s',
     type=str,
@@ -50,7 +57,12 @@ if ARGS.segmentation is not None:
         ARGS.segmentation = np.array(segmentation_file)
 
 
+# set the output file if it's automatic
+if ARGS.output_file == 'auto':
+    ARGS.output_file = ARGS.segmentation
+
+
 # create the data labeler application
-LABELER = DataLabeler(ARGS.image, ARGS.metadata, ARGS.segmentation)
+LABELER = DataLabeler(ARGS.image, ARGS.metadata, ARGS.output_file, ARGS.segmentation)
 # run the data labeler application
 LABELER.run()
