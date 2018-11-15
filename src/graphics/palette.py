@@ -16,6 +16,9 @@ class Palette(object):
     LABEL_HEIGHT = 10
     # the default arguments for the view controller
     DEFAULTS = {
+        'paint': 'brush',
+        'brush_size': 5,
+        'super_pixel': 'felzenszwalb',
         'felzenszwalb': {
             'scale': 100,
             'sigma': 0.5,
@@ -35,21 +38,25 @@ class Palette(object):
             'markers': 250,
             'compactness': 0.001,
         },
+        'label': None,
     }
 
-    def __init__(self, metadata: pd.DataFrame) -> None:
+    def __init__(self, metadata: pd.DataFrame, callback=None) -> None:
         """
         .
 
         Args:
-            metadata
+            metadata:
+            callback:
 
         Returns:
             None
 
         """
         self.metadata = metadata
+        self.callback = callback if callable(callback) else lambda x: x
         self.segmentation_args = deepcopy(self.DEFAULTS)
+        self.segmentation_args['label'] = self.metadata['label'][0]
         # create an application window
         height = self.LABEL_HEIGHT * len(metadata) + self.HEIGHT
         dims = '{}x{}'.format(self.WIDTH, height)
@@ -186,27 +193,32 @@ class Palette(object):
 
     def _did_change_paint(self, _) -> None:
         selected = self._app.getRadioButton('paint')
-        print(selected)
+        self.segmentation_args['paint'] = selected.lower().replace(' ', '_')
+        self.callback(self.segmentation_args)
 
     def _did_change_brush_size(self, _) -> None:
         selected = self._app.getScale('Brush Size')
-        print(selected)
+        self.segmentation_args['brush_size'] = int(selected)
+        self.callback(self.segmentation_args)
 
     def _did_change_super_pixel(self, _) -> None:
         selected = self._app.getRadioButton('super_pixel')
-        print(selected)
+        self.segmentation_args['super_pixel'] = selected.lower().replace(' ', '_')
+        self.callback(self.segmentation_args)
 
     def _did_change_entry(self, title, alg, param):
         if self._app.getEntry(title) == "":
             self.segmentation_args[alg][param] = self.DEFAULTS[alg][param]
             self._app.setEntryWaitingValidation(title)
-            return
-        try:
-            selected = int(self._app.getEntry(title))
-            self.segmentation_args[alg][param] = selected
-            self._app.setEntryValid(title)
-        except ValueError:
-            self._app.setEntryInvalid(title)
+        else:
+            try:
+                selected = int(self._app.getEntry(title))
+                self.segmentation_args[alg][param] = selected
+                self._app.setEntryValid(title)
+            except ValueError:
+                self._app.setEntryInvalid(title)
+                return
+        self.callback(self.segmentation_args)
 
     def _did_change_felzenszwalb_scale(self, _) -> None:
         self._did_change_entry('felzenszwalb_scale', 'felzenszwalb', 'scale')
@@ -242,8 +254,12 @@ class Palette(object):
         self._did_change_entry('watershed_compactness', 'watershed', 'compactness')
 
     def _did_change_label(self, _) -> None:
-        selected = self._app.getListBox('labels')[0]
-        print(selected)
+        selected = self._app.getListBox('labels')
+        if selected is None:
+            return
+        selected = selected[0]
+        self.segmentation_args['label'] = selected
+        self.callback(self.segmentation_args)
 
     # MARK: Execution Stack
 
