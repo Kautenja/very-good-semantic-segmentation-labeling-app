@@ -39,7 +39,7 @@ def segment(image, algorithm: str, mark: bool=True, **kwargs):
         image = img_as_float(image)
     # if the algorithm is watershed, apply sobel and grayscale first
     if algorithm == 'watershed':
-        image =sobel(rgb2gray(algorithm))
+        image = sobel(rgb2gray(image))
     # apply the segmentation algorithm with given key word arguments
     segmentation = segment_image(image, **kwargs)
     # if mark, return the original image with marked boundaries
