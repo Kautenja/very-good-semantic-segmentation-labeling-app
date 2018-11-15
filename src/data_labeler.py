@@ -117,7 +117,7 @@ class DataLabeler(object):
                 print('super pixel')
                 super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
                 mask = self._super_pixel_segments == super_pixel
-                self._super_pixel[mask] = (0,0,0)
+                self._segmentation[mask] = self._color
 
     def _on_mouse_drag(self, mouse_x: int, mouse_y: int) -> None:
         """
