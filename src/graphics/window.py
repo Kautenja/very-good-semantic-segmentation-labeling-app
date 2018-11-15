@@ -1,6 +1,7 @@
 """A simple class for viewing images using a pyglet window."""
 from pyglet.window import Window as _Window
 from pyglet.image import ImageData as _ImageData
+from pyglet.gl import *
 
 
 class Window(object):
@@ -58,7 +59,7 @@ class Window(object):
             resizable=True,
         )
 
-    def show(self, frame) -> None:
+    def show(self, frame, _flip: bool=True) -> None:
         """
         Show an array of pixels on the window.
 
@@ -68,6 +69,16 @@ class Window(object):
         Returns:
             None
         """
+        if isinstance(frame, (list, tuple)):
+            self._window.clear()
+            self._window.switch_to()
+            self._window.dispatch_events()
+            glEnable(GL_BLEND)
+            for _frame in frame:
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+                self.show(_frame, _flip=False)
+            self._window.flip()
+            return
         # check that the frame has the correct dimensions
         if len(frame.shape) != 3:
             raise ValueError('frame should have shape with only 3 dimensions')
@@ -75,9 +86,10 @@ class Window(object):
         if not self.is_open:
             self.open()
         # prepare the window for the next frame
-        self._window.clear()
-        self._window.switch_to()
-        self._window.dispatch_events()
+        if _flip:
+            self._window.clear()
+            self._window.switch_to()
+            self._window.dispatch_events()
         # create an image data object
         image = _ImageData(
             frame.shape[1],
@@ -88,7 +100,9 @@ class Window(object):
         )
         # send the image to the window
         image.blit(0, 0, width=self._window.width, height=self._window.height)
-        self._window.flip()
+
+        if _flip:
+            self._window.flip()
 
     def close(self) -> None:
         """Close the window."""
