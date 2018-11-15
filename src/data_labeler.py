@@ -23,13 +23,14 @@ class DataLabeler(object):
             None
 
         """
+        self._opacity = 9
         self._image = image
         self._metadata = metadata
         self._segmentation = segmentation
         # if there is no segmentation, initialize as the first label
         if self._segmentation is None:
-            self._segmentation = np.zeros_like(image)
-            self._segmentation[:, :, :] = metadata['rgb'][0]
+            self._segmentation = np.zeros_like(image, dtype='uint8')
+            self._segmentation[:, :, range(3)] = metadata['rgb'][1]
         # set the default color to black
         self._color = (0, 0, 0)
         # setup the window for the simulator and register event handlers
@@ -60,6 +61,7 @@ class DataLabeler(object):
         # if the key is in [48, 59] it's numeric, adjust the opacity overlay
         elif 48 <= symbol <= 59:
             print('setting opacity to {}'.format(symbol - 48))
+            self._opacity = symbol - 48
 
     def _on_mouse_press(self, mouse_x: int, mouse_y: int) -> None:
         """
@@ -91,7 +93,15 @@ class DataLabeler(object):
 
     def _blit(self) -> None:
         """Blit local data structures to the GUI."""
-        self._view.show(self._image)
+
+        alpha = 255 * np.ones_like(self._image[..., 0:1])
+        img = np.concatenate([self._image, alpha], axis=-1)
+
+        intensity = 255 * (self._opacity / 9)
+        alpha = intensity * np.ones_like(self._segmentation[..., 0:1])
+        seg = np.concatenate([self._segmentation, alpha], axis=-1).astype('uint8')
+
+        self._view.show([img, seg])
 
     def run(self) -> None:
         """Run the simulation."""
