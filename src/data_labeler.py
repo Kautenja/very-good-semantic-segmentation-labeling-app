@@ -93,14 +93,15 @@ class DataLabeler(object):
 
     def _blit(self) -> None:
         """Blit local data structures to the GUI."""
-
+        # setup the source image with an alpha channel
         alpha = 255 * np.ones_like(self._image[..., 0:1])
         img = np.concatenate([self._image, alpha], axis=-1)
-
+        # setup the segmentation image with an alpha channel scaled by the
+        # opacity parameter of the application
         intensity = 255 * (self._opacity / 9)
         alpha = intensity * np.ones_like(self._segmentation[..., 0:1])
         seg = np.concatenate([self._segmentation, alpha], axis=-1).astype('uint8')
-
+        # send the images to the window
         self._view.show([img, seg])
 
     def run(self) -> None:
