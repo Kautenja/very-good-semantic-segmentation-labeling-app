@@ -31,17 +31,17 @@ class DataLabeler(object):
             None
 
         """
-        self._opacity = 5
-        self._brush_size = multiprocessing.Value('i', 5)
-        self._is_brush = multiprocessing.Value('b', True)
         self._image = image
-        print(int(np.prod(image.shape)))
-        raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
-        numpy_array = np.frombuffer(raw_array, dtype='uint8')
-        self._super_pixel = numpy_array.reshape(image.shape)
         self._metadata = metadata
         self._output_file = output_file
         self._segmentation = segmentation
+        self._opacity = 5
+        self._brush_size = multiprocessing.Value('i', 5)
+        self._is_brush = multiprocessing.Value('b', True)
+        # create a raw array for sharing image data between processes
+        raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
+        numpy_array = np.frombuffer(raw_array, dtype='uint8')
+        self._super_pixel = numpy_array.reshape(image.shape)
         # if there is no segmentation, initialize as the first label
         if self._segmentation is None:
             self._segmentation = np.zeros_like(image, dtype='uint8')
