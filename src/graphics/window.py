@@ -6,7 +6,7 @@ from pyglet.image import ImageData as _ImageData
 class Window(object):
     """A simple class for viewing images using a pyglet window."""
 
-    def __init__(self, caption: str, height: int, width: int) -> None:
+    def __init__(self, caption: str, height: int, width: int, encoding: str='RGBA') -> None:
         """
         Initialize a new image viewer.
 
@@ -14,6 +14,7 @@ class Window(object):
             caption: the caption/title for the window
             height: the height of the window
             width: the width of the window
+            encoding: the encoding of the images to display
 
         Returns:
             None
@@ -22,6 +23,7 @@ class Window(object):
         self.caption = caption
         self.height = height
         self.width = width
+        self.encoding = encoding
         self._window = None
 
     def __repr__(self) -> str:
@@ -80,9 +82,9 @@ class Window(object):
         image = _ImageData(
             frame.shape[1],
             frame.shape[0],
-            'RGB',
+            self.encoding,
             frame.tobytes(),
-            pitch=frame.shape[1]*-3
+            pitch=frame.shape[1] * -len(self.encoding)
         )
         # send the image to the window
         image.blit(0, 0, width=self._window.width, height=self._window.height)
