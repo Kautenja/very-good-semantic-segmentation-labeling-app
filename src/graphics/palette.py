@@ -1,6 +1,7 @@
 """A palette for working with semantic segmentation labeling."""
 import sys
 from copy import deepcopy
+from threading import Thread
 from multiprocessing import Process
 from appJar import gui
 import pandas as pd
@@ -55,7 +56,7 @@ class Palette(object):
 
         """
         self.metadata = metadata
-        self.callback = callback if callable(callback) else lambda x: x
+        self._callback = callback if callable(callback) else lambda x: x
         self.segmentation_args = deepcopy(self.DEFAULTS)
         self.segmentation_args['label'] = self.metadata['label'][0]
         # create an application window
@@ -69,6 +70,20 @@ class Palette(object):
         sys.argv = argv
         self._window_did_load(self._app)
         self._view_did_load(self._app)
+
+    def callback(self, args: any) -> None:
+        """
+        Call the callback on a background thread.
+
+        Args:
+            args: the arguments to pass to the internal callback
+
+        Returns:
+            None
+
+        """
+        # create the thread and start it
+        Thread(target=self._callback, args=(args,)).start()
 
     @classmethod
     def thread(cls, metadata: pd.DataFrame, callback=None):
