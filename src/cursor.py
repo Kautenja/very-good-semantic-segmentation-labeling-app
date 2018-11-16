@@ -27,7 +27,9 @@ def make_circle(radius: int, dtype: str='uint8') -> np.ndarray:
     return box
 
 
-def make_ring(inner_radius: int, outer_radius: int, dtype: str='uint8') -> np.ndarray:
+def make_ring(inner_radius: int, outer_radius: int,
+    dtype: str='uint8'
+) -> np.ndarray:
     """
     Make a circle with a given radius.
 
@@ -55,7 +57,10 @@ def make_ring(inner_radius: int, outer_radius: int, dtype: str='uint8') -> np.nd
     return box
 
 
-def make_cursor(circle: np.ndarray, color: tuple=(255, 255, 255)) -> np.ndarray:
+def make_cursor(
+    circle: np.ndarray,
+    color: tuple=(255, 255, 255)
+) -> np.ndarray:
     """
     Make an RGBA cursor with a given radius and color.
 
@@ -70,9 +75,9 @@ def make_cursor(circle: np.ndarray, color: tuple=(255, 255, 255)) -> np.ndarray:
     # create a matrix with a circle in it
     circle = circle[..., None]
     # create a circle in a matrix and assign the color
-    circle_image = np.concatenate(3 * [circle], axis=-1) * color
+    image = np.concatenate(3 * [circle], axis=-1) * color
     # add an alpha channel
-    return np.concatenate([circle_image, 255 * circle], axis=-1).astype('uint8')
+    return np.concatenate([image, 255 * circle], axis=-1).astype('uint8')
 
 
 def pyglet_cursor(image: np.ndarray) -> pyglet.window.ImageMouseCursor:

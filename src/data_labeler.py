@@ -6,7 +6,7 @@ from PIL import Image
 from pyglet.window import key
 from skimage.segmentation import mark_boundaries
 from skimage.draw import circle
-from .cursor import make_cursor, pyglet_cursor
+from .cursor import make_cursor, make_ring, pyglet_cursor
 from .graphics.image_view import ImageView
 from .graphics.palette import Palette
 from .segment import segment
@@ -178,9 +178,10 @@ class DataLabeler(object):
         """
         """
         with self._brush_size.get_lock():
-            cursor = make_cursor(self._brush_size.value, self._color)
-            mouse_cursor = pyglet_cursor(cursor)
-            self._view._window._window.set_mouse_cursor(mouse_cursor)
+            circle = make_ring(self._brush_size.value - 1, self._brush_size.value)
+            cursor = make_cursor(circle, self._color)
+            mouse = pyglet_cursor(cursor)
+            self._view._window._window.set_mouse_cursor(mouse)
 
     def run(self) -> None:
         """Run the simulation."""
@@ -188,6 +189,7 @@ class DataLabeler(object):
         self._is_running = True
         Palette.thread(self._metadata, self._on_palette_change)
         while self._is_running:
+            self._update_cursor()
             # process events from the window
             self._view.event_step()
             # blit changes to the screen
