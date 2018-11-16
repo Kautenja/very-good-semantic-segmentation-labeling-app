@@ -116,11 +116,12 @@ class DataLabeler(object):
         """
         # get the lock for the brush value
         with self._is_brush.get_lock():
-            # if brush mode, return the normal image
+            # if brush mode, draw on the image use the circles
             if self._is_brush.value:
                 with self._brush_size.get_lock():
                     x, y = circle(mouse_x, mouse_y, self._brush_size.value)
                     self._segmentation[y, x] = self._color
+            # if super pixel mode, draw on super pixels
             else:
                 super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
                 mask = self._super_pixel_segments == super_pixel
@@ -158,24 +159,32 @@ class DataLabeler(object):
         """
         # set the color from the metadata
         color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
+        # if the selected color is different, queue a cursor update
         if not np.array_equal(self._color, color):
             with self._change_cursor.get_lock():
                 self._change_cursor.value = True
+        # store the color with the new value
         self._color[:] = color
         # set the is brush flag
         with self._is_brush.get_lock():
             self._is_brush.value = palette_data['paint'] == 'brush'
         # set the brush size variable
         with self._brush_size.get_lock():
+            # if the brush size is different, queue a cursor update
             if self._brush_size.value != palette_data['brush_size']:
                 with self._change_cursor.get_lock():
                     self._change_cursor.value = True
+            # store the brush size with the new value
             self._brush_size.value = palette_data['brush_size']
         # if the palette is in super pixel mode, get that data
         if palette_data['paint'] == 'super_pixel':
+            # get the algorithm from the dictionary
             algorithm = palette_data['super_pixel']
+            # get the arguments for the specific algorithm
             arguments = palette_data[algorithm]
+            # get the segments using the given algorithm and arguments
             segs = segment(self._image, algorithm, **arguments)
+            # apply the segmented image pixels and segments to local structures
             self._super_pixel_segments[:], self._super_pixel[:] = segs
         # otherwise set the super pixel data back to 0
         else:
