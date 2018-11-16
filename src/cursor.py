@@ -107,5 +107,6 @@ def pyglet_cursor(image: np.ndarray) -> pyglet.window.ImageMouseCursor:
 __all__ = [
     make_circle.__name__,
     make_cursor.__name__,
+    make_ring.__name__,
     pyglet_cursor.__name__,
 ]
