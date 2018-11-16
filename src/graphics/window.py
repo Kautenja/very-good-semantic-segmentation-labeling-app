@@ -59,6 +59,19 @@ class Window(object):
             resizable=False,
         )
 
+    def set_cursor(self, cursor) -> None:
+        """
+        Set the windows cursor to a new value.
+
+        Args:
+            cursor: the abstract pyglet cursor to set the mouse to
+
+        Returns:
+            None
+
+        """
+        self._window.set_mouse_cursor(cursor)
+
     def show(self, frame, _flip: bool=True) -> None:
         """
         Show an array of pixels on the window.

@@ -21,18 +21,18 @@ class ImageView(object):
         self.image_shape = image_shape
         self._window = Window(caption, *image_shape)
 
-    def show(self, image: 'np.ndarray') -> None:
+    def set_cursor(self, cursor) -> None:
         """
-        Show the window with the given data.
+        Set the windows cursor to a new value.
 
         Args:
-            image: the image to display on the image view
+            cursor: the abstract pyglet cursor to set the mouse to
 
         Returns:
             None
 
         """
-        self._window.show(image)
+        self._window.set_cursor(cursor)
 
     def add_event_handler(self, handler) -> None:
         """
@@ -101,6 +101,19 @@ class ImageView(object):
         self._window.window.dispatch_events()
         self._window.window.dispatch_event('on_draw')
         self._window.window.flip()
+
+    def show(self, image: 'np.ndarray') -> None:
+        """
+        Show the window with the given data.
+
+        Args:
+            image: the image to display on the image view
+
+        Returns:
+            None
+
+        """
+        self._window.show(image)
 
     def close(self):
         """Close the view."""
