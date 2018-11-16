@@ -5,6 +5,8 @@ import pandas as pd
 from PIL import Image
 from pyglet.window import key
 from skimage.segmentation import mark_boundaries
+from skimage.draw import circle
+from .cursor import make_cursor, pyglet_cursor
 from .graphics.image_view import ImageView
 from .graphics.palette import Palette
 from .segment import segment
@@ -58,7 +60,7 @@ class DataLabeler(object):
         # setup the window for the simulator and register event handlers
         self._view = ImageView('Data Labeler', image.shape[:2])
         self._view.add_on_mouse_press_handler(self._on_mouse_press)
-        self._view.add_on_mouse_drag_handler(self._on_mouse_drag)
+        self._view.add_on_mouse_drag_handler(self._on_mouse_press)
         self._view.add_on_key_press_handler(self._on_key_press)
         # setup a flag to determine if the application is running
         self._is_running = False
@@ -115,29 +117,9 @@ class DataLabeler(object):
         with self._is_brush.get_lock():
             # if brush mode, return the normal image
             if self._is_brush.value:
-                pass
-            else:
-                super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
-                mask = self._super_pixel_segments == super_pixel
-                self._segmentation[mask] = self._color
-
-    def _on_mouse_drag(self, mouse_x: int, mouse_y: int) -> None:
-        """
-        Handle a callback when a mouse drag occurs.
-
-        Args:
-            mouse_x: the x pixel of the mouse
-            mouse_y: the y pixel of the mouse
-
-        Returns:
-            None
-
-        """
-        # get the lock for the brush value
-        with self._is_brush.get_lock():
-            # if brush mode, return the normal image
-            if self._is_brush.value:
-                pass
+                with self._brush_size.get_lock():
+                    x, y = circle(mouse_x, mouse_y, self._brush_size.value)
+                    self._segmentation[y, x] = self._color
             else:
                 super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
                 mask = self._super_pixel_segments == super_pixel
@@ -191,6 +173,14 @@ class DataLabeler(object):
         else:
             self._super_pixel_segments[:] = 0
             self._super_pixel[:] = 0
+
+    def _update_cursor(self):
+        """
+        """
+        with self._brush_size.get_lock():
+            cursor = make_cursor(self._brush_size.value, self._color)
+            mouse_cursor = pyglet_cursor(cursor)
+            self._view._window._window.set_mouse_cursor(mouse_cursor)
 
     def run(self) -> None:
         """Run the simulation."""
