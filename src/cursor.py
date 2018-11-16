@@ -12,7 +12,7 @@ def make_circle(radius: int, dtype: str='uint8') -> np.ndarray:
         radius: the radius of the circle to draw
 
     Returns:
-        a Numpy matrix of size 2 * radius + 1 with a circle in it.
+        a NumPy matrix of size 2 * radius + 1 with a circle in it.
 
     """
     # if the radius is even, make it odd
@@ -36,7 +36,7 @@ def make_cursor(radius: int, color: tuple=(255, 255, 255)) -> np.ndarray:
         color: the color of the circle to make
 
     Returns:
-        a numpy tensor with shape (2 * radius + 1, 2 * radius + 1, 4)
+        a NumPy tensor with shape (2 * radius + 1, 2 * radius + 1, 4)
 
     """
     # create a matrix with a circle in it
@@ -49,7 +49,7 @@ def make_cursor(radius: int, color: tuple=(255, 255, 255)) -> np.ndarray:
 
 def pyglet_cursor(image: np.ndarray) -> pyglet.window.ImageMouseCursor:
     """
-    Return a Pyglet mourse cursor from the given input image.
+    Return a pyglet mouse cursor from the given input image.
 
     Args:
         image: the image as an RGBA NumPy tensor
