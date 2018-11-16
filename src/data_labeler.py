@@ -41,6 +41,7 @@ class DataLabeler(object):
         self._opacity = 5
         self._brush_size = multiprocessing.Value('i', 5)
         self._is_brush = multiprocessing.Value('b', True)
+        self._change_cursor = multiprocessing.Value('b', True)
         # create a raw array for sharing image data between processes
         raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
         numpy_array = np.frombuffer(raw_array, dtype='uint8')
@@ -156,12 +157,19 @@ class DataLabeler(object):
 
         """
         # set the color from the metadata
-        self._color[:] = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
+        color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
+        if not np.array_equal(self._color, color):
+            with self._change_cursor.get_lock():
+                self._change_cursor.value = True
+        self._color[:] = color
         # set the is brush flag
         with self._is_brush.get_lock():
             self._is_brush.value = palette_data['paint'] == 'brush'
         # set the brush size variable
         with self._brush_size.get_lock():
+            if self._brush_size.value != palette_data['brush_size']:
+                with self._change_cursor.get_lock():
+                    self._change_cursor.value = True
             self._brush_size.value = palette_data['brush_size']
         # if the palette is in super pixel mode, get that data
         if palette_data['paint'] == 'super_pixel':
@@ -175,13 +183,24 @@ class DataLabeler(object):
             self._super_pixel[:] = 0
 
     def _update_cursor(self):
-        """
-        """
+        """Update the mouse cursor for the application window."""
+        # check if a cursor update is ready
+        with self._change_cursor.get_lock():
+            # if there is not update, return
+            if not self._change_cursor.value:
+                return
+            # otherwise dequeue the update
+            self._change_cursor.value = False
+        # update the cursor with the brush size and color
         with self._brush_size.get_lock():
-            circle = make_ring(self._brush_size.value - 1, self._brush_size.value)
-            cursor = make_cursor(circle, self._color)
+            # get a ring for the cursor
+            ring = make_ring(self._brush_size.value - 1, self._brush_size.value)
+            # make the RGBA cursor image
+            cursor = make_cursor(ring, self._color)
+            # create the pyglet cursor object
             mouse = pyglet_cursor(cursor)
-            self._view._window._window.set_mouse_cursor(mouse)
+            # send the cursor to the main window
+            self._view.set_cursor(mouse)
 
     def run(self) -> None:
         """Run the simulation."""
