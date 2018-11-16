@@ -1,5 +1,6 @@
 """A method for setting up a brush cursor."""
 import numpy as np
+import pyglet
 from skimage.draw import circle as draw_circle
 
 
@@ -43,8 +44,33 @@ def make_cursor(radius: int, color: tuple=(255, 255, 255)) -> np.ndarray:
     # create a circle in a matrix and assign the color
     circle_image = np.concatenate(3 * [circle], axis=-1) * color
     # add an alpha channel
-    return np.concatenate([circle_image, 255 * circle], axis=-1)
+    return np.concatenate([circle_image, 255 * circle], axis=-1).astype('uint8')
+
+
+def pyglet_cursor(image: np.ndarray) -> pyglet.window.ImageMouseCursor:
+    """
+    Return a Pyglet mourse cursor from the given input image.
+
+    Args:
+        image: the image as an RGBA NumPy tensor
+
+    Returns:
+        an image mouse cursor for pyglet
+
+    """
+    # create an image data object from the NumPy tensor
+    image_data = pyglet.image.ImageData(
+        *image.shape[:-1],
+        'RGBA',
+        image.tobytes(),
+        pitch=image.shape[1] * -len('RGBA')
+    )
+    # return the image mouse cursor
+    return pyglet.window.ImageMouseCursor(image_data)
 
 
 # explicitly define the outward facing API of this module
-__all__ = [make_circle.__name__, make_cursor.__name__]
+__all__ = [
+    make_circle.__name__,
+    make_cursor.__name__,
+]

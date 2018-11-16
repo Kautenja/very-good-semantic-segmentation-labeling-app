@@ -3,6 +3,7 @@ from unittest import TestCase
 import numpy as np
 from ..cursor import make_circle
 from ..cursor import make_cursor
+from ..cursor import pyglet_cursor
 
 
 class ShouldCreateCircleWithRadius1(TestCase):
@@ -196,3 +197,9 @@ class ShouldCreateCursorWithRadius3(TestCase):
             ],
         ])
         self.assertTrue(np.array_equal(expected, circle))
+
+
+class ShouldMakePygletCursor(TestCase):
+    def test(self):
+        cursor = make_cursor(3, color=(33, 66, 99))
+        mouse_cursor = pyglet_cursor(cursor)
