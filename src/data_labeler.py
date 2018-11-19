@@ -95,6 +95,10 @@ class DataLabeler(object):
         """Set the size of the brush to a new value."""
         # get the brush size context and set its value
         with self._brush_size.get_lock():
+            # if the brush size is different, queue a cursor update
+            if self._brush_size.value != new_value:
+                self.change_cursor = True
+            # set the brush size to the new value
             self._brush_size.value = new_value
 
     @property
@@ -206,10 +210,6 @@ class DataLabeler(object):
         self._color[:] = color
         # set the is brush flag
         self.is_brush = palette_data['paint'] == 'brush'
-        # if the brush size is different, queue a cursor update
-        # TODO: move to the brush size setter
-        if self.brush_size != palette_data['brush_size']:
-            self.change_cursor = True
         # store the brush size with the new value
         self.brush_size = palette_data['brush_size']
         # if the palette is in super pixel mode, get that data
