@@ -66,8 +66,6 @@ class Palette(object):
             handleArgs=False,
             showIcon=False,
         )
-        # instantiate the view call stack
-        self._window_did_load(self._app)
         self._view_did_load(self._app)
 
     def callback(self) -> None:
@@ -100,14 +98,9 @@ class Palette(object):
 
         return palette, process
 
-    # MARK: View Hierarchy
-
-    def _window_did_load(self, app) -> None:
-        """Perform global window decoration."""
-        app.setFont(14)
-
     def _view_did_load(self, app) -> None:
         """Setup the sub-views after the view is loaded into memory."""
+        app.setFont(14)
         # setup the paint style
         app.startLabelFrame("Paint Style")
         app.addRadioButton("paint", "Brush")
@@ -212,69 +205,111 @@ class Palette(object):
         app.setListBoxChangeFunction('labels', self._did_change_label)
         app.selectListItem('labels', self.metadata['label'][0])
 
+    def run(self) -> None:
+        """Start the palette."""
+        self._app.go()
+
     # MARK: Callbacks
 
     def _did_change_paint(self, _) -> None:
+        """Respond to changes in mode of painting."""
         selected = self._app.getRadioButton('paint')
         self.segmentation_args['paint'] = selected.lower().replace(' ', '_')
         self.callback()
 
     def _did_change_brush_size(self, _) -> None:
+        """Respond to changes in the size of the brush."""
         selected = self._app.getScale('Brush Size')
         self.segmentation_args['brush_size'] = int(selected)
         self.callback()
 
     def _did_change_super_pixel(self, _) -> None:
+        """Respond to changes in the selected super pixel algorithm."""
         selected = self._app.getTabbedFrameSelectedTab('super_pixel')
         self.segmentation_args['super_pixel'] = selected.lower().replace(' ', '_')
         self.callback()
 
-    def _did_change_entry(self, title, alg, param):
+    def _did_change_entry(self,
+        title: str,
+        alg: str,
+        param: str,
+        data_type: 'Callable'
+    ) -> None:
+        """
+        Respond to changes in a segmentation algorithm hyperparameters.
+
+        Args:
+            title: the title of the text box to get data from
+            alg: the name of the algorithm to set parameters for
+            param: the name of the parameter to set
+            data_type: the data type to cast the
+
+        Returns:
+            None
+
+        """
+        # if the entry is empty, return to the default value
         if self._app.getEntry(title) == "":
             self.segmentation_args[alg][param] = self.DEFAULTS[alg][param]
             self._app.setEntryWaitingValidation(title)
+            # pass the data to the callback
+            self.callback()
         else:
+            # try to cast the input to the given input type
             try:
-                selected = int(self._app.getEntry(title))
+                selected = data_type(self._app.getEntry(title))
                 self.segmentation_args[alg][param] = selected
+                # set the UI element to valid (green check)
                 self._app.setEntryValid(title)
+                # pass the data to the callback
+                self.callback()
             except ValueError:
+                # set the UI element to invalid (red x)
                 self._app.setEntryInvalid(title)
-                return
-        self.callback()
 
     def _did_change_felzenszwalb_scale(self, _) -> None:
-        self._did_change_entry('felzenszwalb_scale', 'felzenszwalb', 'scale')
+        """Respond to changes in the felzenszwalb scale parameter."""
+        self._did_change_entry('felzenszwalb_scale', 'felzenszwalb', 'scale', int)
 
     def _did_change_felzenszwalb_sigma(self, _) -> None:
-        self._did_change_entry('felzenszwalb_sigma', 'felzenszwalb', 'sigma')
+        """Respond to changes in the felzenszwalb sigma parameter."""
+        self._did_change_entry('felzenszwalb_sigma', 'felzenszwalb', 'sigma', float)
 
     def _did_change_felzenszwalb_min_size(self, _) -> None:
-        self._did_change_entry('felzenszwalb_min_size', 'felzenszwalb', 'min_size')
+        """Respond to changes in the felzenszwalb minimum size parameter."""
+        self._did_change_entry('felzenszwalb_min_size', 'felzenszwalb', 'min_size', int)
 
     def _did_change_slic_num_segments(self, _) -> None:
-        self._did_change_entry('slic_n_segments', 'slic', 'n_segments')
+        """Respond to changes in the SLIC number of segments parameter."""
+        self._did_change_entry('slic_n_segments', 'slic', 'n_segments', int)
 
     def _did_change_slic_compactness(self, _) -> None:
-        self._did_change_entry('slic_compactness', 'slic', 'compactness')
+        """Respond to changes in the SLIC compactness parameter."""
+        self._did_change_entry('slic_compactness', 'slic', 'compactness', float)
 
     def _did_change_slic_sigma(self, _) -> None:
-        self._did_change_entry('slic_sigma', 'slic', 'sigma')
+        """Respond to changes in the SLIC sigma parameter."""
+        self._did_change_entry('slic_sigma', 'slic', 'sigma', float)
 
     def _did_change_quickshift_kernel_size(self, _) -> None:
-        self._did_change_entry('quickshift_kernel_size', 'quickshift', 'kernel_size')
+        """Respond to changes in the Quickshift kernel size parameter."""
+        self._did_change_entry('quickshift_kernel_size', 'quickshift', 'kernel_size', int)
 
     def _did_change_quickshift_max_distance(self, _) -> None:
-        self._did_change_entry('quickshift_max_dist', 'quickshift', 'max_dist')
+        """Respond to changes in the Quickshift max distance parameter."""
+        self._did_change_entry('quickshift_max_dist', 'quickshift', 'max_dist', float)
 
     def _did_change_quickshift_ratio(self, _) -> None:
-        self._did_change_entry('quickshift_ratio', 'quickshift', 'ratio')
+        """Respond to changes in the Quickshift ratio parameter."""
+        self._did_change_entry('quickshift_ratio', 'quickshift', 'ratio', float)
 
     def _did_change_watershed_markers(self, _) -> None:
-        self._did_change_entry('watershed_markers', 'watershed', 'markers')
+        """Respond to changes in the Watershed markers parameter."""
+        self._did_change_entry('watershed_markers', 'watershed', 'markers', int)
 
     def _did_change_watershed_compactness(self, _) -> None:
-        self._did_change_entry('watershed_compactness', 'watershed', 'compactness')
+        """Respond to changes in the Watershed compactness parameter."""
+        self._did_change_entry('watershed_compactness', 'watershed', 'compactness', float)
 
     def _did_change_label(self, _) -> None:
         """Respond to changes in the label selection list box."""
@@ -287,9 +322,3 @@ class Palette(object):
         self.segmentation_args['label'] = selected[0]
         # call the callback with the updated parameters
         self.callback()
-
-    # MARK: Execution Stack
-
-    def run(self) -> None:
-        """Start the application."""
-        self._app.go()
