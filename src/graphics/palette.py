@@ -12,7 +12,7 @@ class Palette(object):
     # the width of the window
     WIDTH = 500
     # the height of the window
-    HEIGHT = 750
+    HEIGHT = 700
     # the height per label entry
     LABEL_HEIGHT = 10
     # the default arguments for the view controller
@@ -122,17 +122,8 @@ class Palette(object):
         app.showScaleValue('Brush Size', show=True)
         app.setScaleChangeFunction('Brush Size', self._did_change_brush_size)
         app.setScale('Brush Size', 5)
-        # setup the super pixel algorithm picker
-        app.startLabelFrame("Super Pixel Algorithm")
-        app.addRadioButton("super_pixel", "Felzenszwalb")
-        app.addRadioButton("super_pixel", "SLIC")
-        app.addRadioButton("super_pixel", "Quickshift")
-        app.addRadioButton("super_pixel", "Watershed")
-        app.setRadioButtonChangeFunction('super_pixel', self._did_change_super_pixel)
-        app.setRadioButton('super_pixel', 'Felzenszwalb')
-        app.stopLabelFrame()
         # super pixel algorithm parameters
-        app.startTabbedFrame("SuperPixel")
+        app.startTabbedFrame("super_pixel")
         # Felzenszwalb
         #     Scale
         app.startTab("Felzenszwalb")
@@ -154,6 +145,7 @@ class Palette(object):
         app.setEntryDefault('felzenszwalb_min_size', self.segmentation_args['felzenszwalb']['min_size'])
         app.setEntryChangeFunction("felzenszwalb_min_size", self._did_change_felzenszwalb_min_size)
         app.stopTab()
+        app.setTabbedFrameChangeFunction('super_pixel', self._did_change_super_pixel)
         # SLIC
         #     Number of Segments
         app.startTab("SLIC")
@@ -233,7 +225,7 @@ class Palette(object):
         self.callback()
 
     def _did_change_super_pixel(self, _) -> None:
-        selected = self._app.getRadioButton('super_pixel')
+        selected = self._app.getTabbedFrameSelectedTab('super_pixel')
         self.segmentation_args['super_pixel'] = selected.lower().replace(' ', '_')
         self.callback()
 
