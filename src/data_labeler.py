@@ -19,7 +19,8 @@ class DataLabeler(object):
         image: np.ndarray,
         metadata: pd.DataFrame,
         output_file: str,
-        segmentation: np.ndarray=None
+        segmentation: np.ndarray=None,
+        brush_border_color: tuple=(255, 255, 255),
     ) -> None:
         """
         Initialize a new data labeling application.
@@ -29,6 +30,7 @@ class DataLabeler(object):
             metadata: the labeling metadata for the segmentation
             output_file: the output file to save segmentations to
             segmentation: an existing segmentation if there is one
+            brush_border_color: the border color for the brush
 
         Returns:
             None
@@ -38,6 +40,7 @@ class DataLabeler(object):
         self._metadata = metadata
         self._output_file = output_file
         self._segmentation = segmentation
+        self._brush_border_color = brush_border_color
         self._opacity = 5
         self._brush_size = multiprocessing.Value('i', 5)
         self._is_brush = multiprocessing.Value('b', True)
@@ -204,7 +207,7 @@ class DataLabeler(object):
         with self._brush_size.get_lock():
             # make a static border ring for the cursor
             ring = make_ring(self._brush_size.value - 1, self._brush_size.value)
-            cursor = make_cursor(ring, (255, 255, 255))
+            cursor = make_cursor(ring, self._brush_border_color)
             # make a circle with the current color
             circle = make_circle(self._brush_size.value) - ring
             cursor = cursor + make_cursor(circle, self._color)
