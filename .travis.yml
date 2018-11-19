@@ -4,6 +4,6 @@ python:
 - '3.6'
 os: linux
 script:
-- python -m unittest discover .
+- xvfb-run -s "-screen 0 1400x900x24" python -m unittest discover .
 notifications:
   email: false
