@@ -215,8 +215,7 @@ class DataLabeler(object):
         """Run the simulation."""
         # start the application and run until the flag is cleared
         self._is_running = True
-        i = 0
-        # Palette.thread(self._metadata, self._on_palette_change)
+        Palette.thread(self._metadata, self._on_palette_change)
         while self._is_running:
             self._update_cursor()
             self._blit()
