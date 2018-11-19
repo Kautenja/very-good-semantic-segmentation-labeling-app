@@ -6,7 +6,7 @@ from PIL import Image
 from pyglet.window import key
 from skimage.segmentation import mark_boundaries
 from skimage.draw import circle
-from .cursor import make_cursor, make_ring, make_circle, pyglet_cursor
+from .graphics.cursor import make_cursor, make_ring, make_circle, pyglet_cursor
 from .graphics.image_view import ImageView
 from .graphics.palette import Palette
 from .segment import segment
