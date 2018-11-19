@@ -65,4 +65,7 @@ if ARGS.segmentation is not None:
 # create the data labeler application
 LABELER = DataLabeler(ARGS.image, ARGS.metadata, ARGS.output_file, ARGS.segmentation)
 # run the data labeler application
-LABELER.run()
+try:
+    LABELER.run()
+except KeyboardInterrupt:
+    pass
