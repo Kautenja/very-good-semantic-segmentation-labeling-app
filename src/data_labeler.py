@@ -246,10 +246,10 @@ class DataLabeler(object):
 
     def run(self) -> None:
         """Run the simulation."""
-        # start the application and run until the flag is cleared
-        self._is_running = True
-        # start the palette thread
+        # start the palette as a background thread
         Palette.thread(self._metadata, self._on_palette_change)
+        # start the application loop
+        self._is_running = True
         while self._is_running:
             # update the cursor and blit changes to the screen
             self._update_cursor()
