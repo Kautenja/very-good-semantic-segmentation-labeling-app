@@ -117,7 +117,7 @@ class Palette(object):
         app.stopLabelFrame()
         # setup the brush size slider
         app.addLabelScale('Brush Size')
-        app.setScaleRange('Brush Size', 0, 50)
+        app.setScaleRange('Brush Size', 1, 50)
         app.showScaleIntervals('Brush Size', 5)
         app.showScaleValue('Brush Size', show=True)
         app.setScaleChangeFunction('Brush Size', self._did_change_brush_size)
