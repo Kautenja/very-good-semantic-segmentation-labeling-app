@@ -194,7 +194,7 @@ class DataLabeler(object):
             self._super_pixel_segments[:] = 0
             self._super_pixel[:] = 0
 
-    def _update_cursor(self):
+    def _update_cursor(self) -> None:
         """Update the mouse cursor for the application window."""
         # check if a cursor update is ready
         with self._change_cursor.get_lock():
