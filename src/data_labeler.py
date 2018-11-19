@@ -6,7 +6,7 @@ from PIL import Image
 from pyglet.window import key
 from skimage.segmentation import mark_boundaries
 from skimage.draw import circle
-from .cursor import make_cursor, make_ring, pyglet_cursor
+from .cursor import make_cursor, make_ring, make_circle, pyglet_cursor
 from .graphics.image_view import ImageView
 from .graphics.palette import Palette
 from .segment import segment
@@ -202,21 +202,24 @@ class DataLabeler(object):
             self._change_cursor.value = False
         # update the cursor with the brush size and color
         with self._brush_size.get_lock():
-            # get a ring for the cursor
+            # make a static border ring for the cursor
             ring = make_ring(self._brush_size.value - 1, self._brush_size.value)
-            # make the RGBA cursor image
-            cursor = make_cursor(ring, self._color)
-            # create the pyglet cursor object
+            cursor = make_cursor(ring, (255, 255, 255))
+            # make a circle with the current color
+            circle = make_circle(self._brush_size.value) - ring
+            cursor = cursor + make_cursor(circle, self._color)
+            # create the pyglet cursor object and set it
             mouse = pyglet_cursor(cursor)
-            # send the cursor to the main window
             self._view.set_cursor(mouse)
 
     def run(self) -> None:
         """Run the simulation."""
         # start the application and run until the flag is cleared
         self._is_running = True
+        # start the palette thread
         Palette.thread(self._metadata, self._on_palette_change)
         while self._is_running:
+            # update the cursor and blit changes to the screen
             self._update_cursor()
             self._blit()
         # close the image view
