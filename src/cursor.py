@@ -102,7 +102,8 @@ def pyglet_cursor(img: np.ndarray,
         img.tobytes(),
         pitch=img.shape[1] * -len(img_format)
     )
-    # return the image mouse cursor
+    # create the "hot shape" of the pyglet cursor. i.e., the center of the
+    # circle representing the cursor, which is centered in the square image
     hot_shape = int(img.shape[0] / 2), int(img.shape[1] / 2)
     # create the pyglet cursor object from the image data
     cursor = pyglet.window.ImageMouseCursor(img_data, *hot_shape)
