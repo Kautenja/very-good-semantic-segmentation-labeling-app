@@ -57,8 +57,7 @@ def make_ring(inner_radius: int, outer_radius: int,
     return box
 
 
-def make_cursor(
-    circle: np.ndarray,
+def make_cursor(circle: np.ndarray,
     color: tuple=(255, 255, 255)
 ) -> np.ndarray:
     """
@@ -77,30 +76,38 @@ def make_cursor(
     # create a circle in a matrix and assign the color
     image = np.concatenate(3 * [circle], axis=-1) * color
     # add an alpha channel
-    return np.concatenate([image, 255 * circle], axis=-1).astype('uint8')
+    image = np.concatenate([image, 255 * circle], axis=-1).astype('uint8')
+
+    return image
 
 
-def pyglet_cursor(image: np.ndarray) -> pyglet.window.ImageMouseCursor:
+def pyglet_cursor(img: np.ndarray,
+    img_format: str='RGBA'
+) -> pyglet.window.ImageMouseCursor:
     """
     Return a pyglet mouse cursor from the given input image.
 
     Args:
-        image: the image as an RGBA NumPy tensor
+        img: the image as an RGBA NumPy tensor
+        format: the format of the image data
 
     Returns:
         an image mouse cursor for pyglet
 
     """
     # create an image data object from the NumPy tensor
-    image_data = pyglet.image.ImageData(
-        *image.shape[:-1],
-        'RGBA',
-        image.tobytes(),
-        pitch=image.shape[1] * -len('RGBA')
+    img_data = pyglet.image.ImageData(
+        *img.shape[:-1],
+        img_format,
+        img.tobytes(),
+        pitch=img.shape[1] * -len(img_format)
     )
     # return the image mouse cursor
-    hot_shape = int(image.shape[0] / 2), int(image.shape[1] / 2)
-    return pyglet.window.ImageMouseCursor(image_data, *hot_shape)
+    hot_shape = int(img.shape[0] / 2), int(img.shape[1] / 2)
+    # create the pyglet cursor object from the image data
+    cursor = pyglet.window.ImageMouseCursor(img_data, *hot_shape)
+
+    return cursor
 
 
 # explicitly define the outward facing API of this module
