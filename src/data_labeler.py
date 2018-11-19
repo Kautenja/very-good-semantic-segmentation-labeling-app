@@ -163,12 +163,24 @@ class DataLabeler(object):
             None
 
         """
+        shape = self._segmentation.shape
         # if brush mode, draw on the image use the circles
         if self.is_brush:
-            x, y = circle(mouse_x, mouse_y, self.brush_size)
-            self._segmentation[y, x] = self._color
+            # get the indexes of the circle in the segmentation
+            circle_x, circle_y = circle(mouse_x, mouse_y, self.brush_size)
+            # set the pixels outside the frame to the last pixel along the axis
+            circle_y[circle_y < 0] = 0
+            circle_y[circle_y >= shape[0]] = shape[0] - 1
+            circle_x[circle_x < 0] = 0
+            circle_x[circle_x >= shape[1]] = shape[1] - 1
+            # set the circle to the color
+            self._segmentation[circle_y, circle_x] = self._color
         # if super pixel mode, draw on super pixels
         else:
+            # ignore the mouse if it's outside of the window frame
+            if mouse_y >= shape[0] or mouse_x >= shape[1]:
+                return
+            # select the super pixel with the same location as the mouse cursor
             super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
             mask = self._super_pixel_segments == super_pixel
             self._segmentation[mask] = self._color
