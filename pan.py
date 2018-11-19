@@ -21,10 +21,10 @@ class App(pyglet.window.Window):
     # def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
     def on_mouse_scroll(self, x, y, dx, dy):
         # Move camera
-        self.left   += dx*self.zoom_level
-        self.right  += dx*self.zoom_level
-        self.bottom += dy*self.zoom_level
-        self.top    += dy*self.zoom_level
+        self.left   -= dx*self.zoom_level
+        self.right  -= dx*self.zoom_level
+        self.bottom -= dy*self.zoom_level
+        self.top    -= dy*self.zoom_level
 
     # def on_mouse_scroll(self, x, y, dx, dy):
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
