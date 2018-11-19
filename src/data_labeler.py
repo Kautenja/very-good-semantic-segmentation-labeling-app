@@ -70,15 +70,27 @@ class DataLabeler(object):
         self._is_running = False
 
     @property
+    def is_brush(self) -> bool:
+        """Return True if in brush mode or False if in super pixel mode."""
+        # get the brush context and return its value
+        with self._is_brush.get_lock():
+            return self._is_brush.value
+
+    @is_brush.setter
+    def is_brush(self, new_value: bool) -> None:
+        """Return True if in brush mode or False if in super pixel mode."""
+        # get the brush context and return its value
+        with self._is_brush.get_lock():
+            self._is_brush.value = new_value
+
+    @property
     def image(self) -> np.ndarray:
         """Return the image to display under the labeling overlay."""
-        # get the lock for the brush value
-        with self._is_brush.get_lock():
-            # if brush mode, return the normal image
-            if self._is_brush.value:
-                return self._image
-            # otherwise in super pixel mode, return the super pixel
-            return self._super_pixel
+        # if brush mode, return the normal image
+        if self.is_brush:
+            return self._image
+        # otherwise in super pixel mode, return the super pixel
+        return self._super_pixel
 
     def _on_key_press(self, symbol: int) -> None:
         """
@@ -117,18 +129,16 @@ class DataLabeler(object):
             None
 
         """
-        # get the lock for the brush value
-        with self._is_brush.get_lock():
-            # if brush mode, draw on the image use the circles
-            if self._is_brush.value:
-                with self._brush_size.get_lock():
-                    x, y = circle(mouse_x, mouse_y, self._brush_size.value)
-                    self._segmentation[y, x] = self._color
-            # if super pixel mode, draw on super pixels
-            else:
-                super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
-                mask = self._super_pixel_segments == super_pixel
-                self._segmentation[mask] = self._color
+        # if brush mode, draw on the image use the circles
+        if self.is_brush:
+            with self._brush_size.get_lock():
+                x, y = circle(mouse_x, mouse_y, self._brush_size.value)
+                self._segmentation[y, x] = self._color
+        # if super pixel mode, draw on super pixels
+        else:
+            super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
+            mask = self._super_pixel_segments == super_pixel
+            self._segmentation[mask] = self._color
 
     def _blit(self) -> None:
         """Blit local data structures to the GUI."""
@@ -169,8 +179,7 @@ class DataLabeler(object):
         # store the color with the new value
         self._color[:] = color
         # set the is brush flag
-        with self._is_brush.get_lock():
-            self._is_brush.value = palette_data['paint'] == 'brush'
+        self.is_brush = palette_data['paint'] == 'brush'
         # set the brush size variable
         with self._brush_size.get_lock():
             # if the brush size is different, queue a cursor update
