@@ -42,9 +42,9 @@ class DataLabeler(object):
         self._segmentation = segmentation
         self._brush_border_color = brush_border_color
         self._opacity = 5
-        self._brush_size = multiprocessing.Value('i', 5)
         self._is_brush = multiprocessing.Value('b', True)
-        self._change_cursor = multiprocessing.Value('b', True)
+        self._brush_size = multiprocessing.Value('i', 5)
+        self._is_cursor_change = multiprocessing.Value('b', True)
         # create a raw array for sharing image data between processes
         raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
         numpy_array = np.frombuffer(raw_array, dtype='uint8')
@@ -53,6 +53,8 @@ class DataLabeler(object):
         raw_array = multiprocessing.RawArray('i', int(np.prod(image.shape[:-1])))
         numpy_array = np.frombuffer(raw_array, dtype='int32')
         self._super_pixel_segments = numpy_array.reshape(image.shape[:-1])
+        # create a dictionary for looking up colors by label name
+        self._label_to_rgb = self._metadata.set_index('label')['rgb']
         # if there is no segmentation, initialize as the first label
         if self._segmentation is None:
             self._segmentation = np.zeros_like(image, dtype='uint8')
@@ -70,15 +72,59 @@ class DataLabeler(object):
         self._is_running = False
 
     @property
+    def is_brush(self) -> bool:
+        """Return True if in brush mode or False if in super pixel mode."""
+        # get the brush mode context and return its value
+        with self._is_brush.get_lock():
+            return self._is_brush.value
+
+    @is_brush.setter
+    def is_brush(self, new_value: bool) -> None:
+        """Set the brush mode to brush (True) or super pixel (False)."""
+        # get the brush mode context and set its value
+        with self._is_brush.get_lock():
+            self._is_brush.value = new_value
+
+    @property
+    def brush_size(self) -> int:
+        """Return the size of the brush."""
+        # get the brush size context and return its value
+        with self._brush_size.get_lock():
+            return self._brush_size.value
+
+    @brush_size.setter
+    def brush_size(self, new_value: int) -> None:
+        """Set the size of the brush to a new value."""
+        # get the brush size context and set its value
+        with self._brush_size.get_lock():
+            # if the brush size is different, queue a cursor update
+            if self._brush_size.value != new_value:
+                self.is_cursor_change = True
+            # set the brush size to the new value
+            self._brush_size.value = new_value
+
+    @property
+    def is_cursor_change(self) -> bool:
+        """Return True if the cursor has changed, false otherwise."""
+        # get the brush mode context and return its value
+        with self._is_cursor_change.get_lock():
+            return self._is_cursor_change.value
+
+    @is_cursor_change.setter
+    def is_cursor_change(self, new_value: bool) -> None:
+        """Signal a cursor change (True) or clear one (False)."""
+        # get the brush mode context and set its value
+        with self._is_cursor_change.get_lock():
+            self._is_cursor_change.value = new_value
+
+    @property
     def image(self) -> np.ndarray:
         """Return the image to display under the labeling overlay."""
-        # get the lock for the brush value
-        with self._is_brush.get_lock():
-            # if brush mode, return the normal image
-            if self._is_brush.value:
-                return self._image
-            # otherwise in super pixel mode, return the super pixel
-            return self._super_pixel
+        # if brush mode, return the normal image
+        if self.is_brush:
+            return self._image
+        # otherwise in super pixel mode, return the super pixel
+        return self._super_pixel
 
     def _on_key_press(self, symbol: int) -> None:
         """
@@ -117,18 +163,27 @@ class DataLabeler(object):
             None
 
         """
-        # get the lock for the brush value
-        with self._is_brush.get_lock():
-            # if brush mode, draw on the image use the circles
-            if self._is_brush.value:
-                with self._brush_size.get_lock():
-                    x, y = circle(mouse_x, mouse_y, self._brush_size.value)
-                    self._segmentation[y, x] = self._color
-            # if super pixel mode, draw on super pixels
-            else:
-                super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
-                mask = self._super_pixel_segments == super_pixel
-                self._segmentation[mask] = self._color
+        shape = self._segmentation.shape
+        # if brush mode, draw on the image use the circles
+        if self.is_brush:
+            # get the indexes of the circle in the segmentation
+            circle_x, circle_y = circle(mouse_x, mouse_y, self.brush_size)
+            # set the pixels outside the frame to the last pixel along the axis
+            circle_y[circle_y < 0] = 0
+            circle_y[circle_y >= shape[0]] = shape[0] - 1
+            circle_x[circle_x < 0] = 0
+            circle_x[circle_x >= shape[1]] = shape[1] - 1
+            # set the circle to the color
+            self._segmentation[circle_y, circle_x] = self._color
+        # if super pixel mode, draw on super pixels
+        else:
+            # ignore the mouse if it's outside of the window frame
+            if mouse_y >= shape[0] or mouse_x >= shape[1]:
+                return
+            # select the super pixel with the same location as the mouse cursor
+            super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
+            mask = self._super_pixel_segments == super_pixel
+            self._segmentation[mask] = self._color
 
     def _blit(self) -> None:
         """Blit local data structures to the GUI."""
@@ -136,10 +191,8 @@ class DataLabeler(object):
         alpha = 255 * np.ones_like(self.image[..., 0:1])
         img = np.concatenate([self._image, alpha], axis=-1)
         # setup the super pixel segmentations
-        alpha = np.zeros_like(self.image)
-        sup = mark_boundaries(alpha, self._super_pixel_segments,
-            color=(127, 127, 127)
-        )
+        sup = np.zeros_like(self.image)
+        sup = mark_boundaries(sup, self._super_pixel_segments, (127, 127, 127))
         sup = np.concatenate([sup, sup[..., 0:1]], axis=-1).astype('uint8')
         # setup the segmentation image with an alpha channel scaled by the
         # opacity parameter of the application
@@ -161,24 +214,16 @@ class DataLabeler(object):
 
         """
         # set the color from the metadata
-        color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
+        color = self._label_to_rgb[palette_data['label']]
         # if the selected color is different, queue a cursor update
         if not np.array_equal(self._color, color):
-            with self._change_cursor.get_lock():
-                self._change_cursor.value = True
+            self.is_cursor_change = True
         # store the color with the new value
         self._color[:] = color
         # set the is brush flag
-        with self._is_brush.get_lock():
-            self._is_brush.value = palette_data['paint'] == 'brush'
-        # set the brush size variable
-        with self._brush_size.get_lock():
-            # if the brush size is different, queue a cursor update
-            if self._brush_size.value != palette_data['brush_size']:
-                with self._change_cursor.get_lock():
-                    self._change_cursor.value = True
-            # store the brush size with the new value
-            self._brush_size.value = palette_data['brush_size']
+        self.is_brush = palette_data['paint'] == 'brush'
+        # store the brush size with the new value
+        self.brush_size = palette_data['brush_size']
         # if the palette is in super pixel mode, get that data
         if palette_data['paint'] == 'super_pixel':
             # get the algorithm from the dictionary
@@ -196,31 +241,27 @@ class DataLabeler(object):
 
     def _update_cursor(self) -> None:
         """Update the mouse cursor for the application window."""
-        # check if a cursor update is ready
-        with self._change_cursor.get_lock():
-            # if there is not update, return
-            if not self._change_cursor.value:
-                return
-            # otherwise dequeue the update
-            self._change_cursor.value = False
-        # update the cursor with the brush size and color
-        with self._brush_size.get_lock():
-            # make a static border ring for the cursor
-            ring = make_ring(self._brush_size.value - 1, self._brush_size.value)
-            cursor = make_cursor(ring, self._brush_border_color)
-            # make a circle with the current color
-            circle = make_circle(self._brush_size.value) - ring
-            cursor = cursor + make_cursor(circle, self._color)
-            # create the pyglet cursor object and set it
-            mouse = pyglet_cursor(cursor)
-            self._view.set_cursor(mouse)
+        # if there is not update, return
+        if not self.is_cursor_change:
+            return
+        # otherwise dequeue the update
+        self.is_cursor_change = False
+        # make a static border ring for the cursor
+        ring = make_ring(self.brush_size - 1, self.brush_size)
+        cursor = make_cursor(ring, self._brush_border_color)
+        # make a circle with the current color
+        brush_circle = make_circle(self.brush_size) - ring
+        cursor = cursor + make_cursor(brush_circle, self._color)
+        # create the pyglet cursor object and set it
+        mouse = pyglet_cursor(cursor)
+        self._view.set_cursor(mouse)
 
     def run(self) -> None:
         """Run the simulation."""
-        # start the application and run until the flag is cleared
-        self._is_running = True
-        # start the palette thread
+        # start the palette as a background thread
         Palette.thread(self._metadata, self._on_palette_change)
+        # start the application loop
+        self._is_running = True
         while self._is_running:
             # update the cursor and blit changes to the screen
             self._update_cursor()
