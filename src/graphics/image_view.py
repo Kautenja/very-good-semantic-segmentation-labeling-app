@@ -95,13 +95,6 @@ class ImageView(object):
             return handler(symbol)
         self.add_event_handler(on_key_press)
 
-    def event_step(self) -> None:
-        """Perform an event step to handle events in a loop."""
-        self._window.window.switch_to()
-        self._window.window.dispatch_events()
-        self._window.window.dispatch_event('on_draw')
-        self._window.window.flip()
-
     def show(self, image: 'np.ndarray') -> None:
         """
         Show the window with the given data.
