@@ -177,10 +177,8 @@ class DataLabeler(object):
         alpha = 255 * np.ones_like(self.image[..., 0:1])
         img = np.concatenate([self._image, alpha], axis=-1)
         # setup the super pixel segmentations
-        alpha = np.zeros_like(self.image)
-        sup = mark_boundaries(alpha, self._super_pixel_segments,
-            color=(127, 127, 127)
-        )
+        sup = np.zeros_like(self.image)
+        sup = mark_boundaries(sup, self._super_pixel_segments, (127, 127, 127))
         sup = np.concatenate([sup, sup[..., 0:1]], axis=-1).astype('uint8')
         # setup the segmentation image with an alpha channel scaled by the
         # opacity parameter of the application
