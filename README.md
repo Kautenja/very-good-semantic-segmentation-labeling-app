@@ -1,6 +1,16 @@
 # Very Good Semantic Segmentation Labeling App
 
-![screenshot](https://user-images.githubusercontent.com/2184469/48687452-19c12200-eb87-11e8-94f7-cdae0e961e1d.png)
+<!-- header badges -->
+
+[![build-status][]][ci-server]
+
+<!-- screen shot of the app -->
+
+![screenshot][]
+
+[build-status]: https://travis-ci.com/Kautenja/semantic-segmentation-labeling-app.svg?branch=master
+[ci-server]: https://travis-ci.com/Kautenja/semantic-segmentation-labeling-app
+[screenshot]: https://user-images.githubusercontent.com/2184469/48687452-19c12200-eb87-11e8-94f7-cdae0e961e1d.png
 
 ## Installation
 
