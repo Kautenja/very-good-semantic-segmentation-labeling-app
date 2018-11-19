@@ -98,6 +98,20 @@ class DataLabeler(object):
             self._brush_size.value = new_value
 
     @property
+    def change_cursor(self) -> bool:
+        """Return True if the cursor has changed, false otherwise."""
+        # get the brush mode context and return its value
+        with self._change_cursor.get_lock():
+            return self._change_cursor.value
+
+    @change_cursor.setter
+    def change_cursor(self, new_value: bool) -> None:
+        """Signal a cursor change (True) or clear one (False)."""
+        # get the brush mode context and set its value
+        with self._change_cursor.get_lock():
+            self._change_cursor.value = new_value
+
+    @property
     def image(self) -> np.ndarray:
         """Return the image to display under the labeling overlay."""
         # if brush mode, return the normal image
@@ -187,8 +201,7 @@ class DataLabeler(object):
         color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
         # if the selected color is different, queue a cursor update
         if not np.array_equal(self._color, color):
-            with self._change_cursor.get_lock():
-                self._change_cursor.value = True
+            self.change_cursor = True
         # store the color with the new value
         self._color[:] = color
         # set the is brush flag
@@ -196,8 +209,7 @@ class DataLabeler(object):
         # if the brush size is different, queue a cursor update
         # TODO: move to the brush size setter
         if self.brush_size != palette_data['brush_size']:
-            with self._change_cursor.get_lock():
-                self._change_cursor.value = True
+            self.change_cursor = True
         # store the brush size with the new value
         self.brush_size = palette_data['brush_size']
         # if the palette is in super pixel mode, get that data
@@ -217,13 +229,11 @@ class DataLabeler(object):
 
     def _update_cursor(self) -> None:
         """Update the mouse cursor for the application window."""
-        # check if a cursor update is ready
-        with self._change_cursor.get_lock():
-            # if there is not update, return
-            if not self._change_cursor.value:
-                return
-            # otherwise dequeue the update
-            self._change_cursor.value = False
+        # if there is not update, return
+        if not self.change_cursor:
+            return
+        # otherwise dequeue the update
+        self.change_cursor = False
         # make a static border ring for the cursor
         ring = make_ring(self.brush_size - 1, self.brush_size)
         cursor = make_cursor(ring, self._brush_border_color)
