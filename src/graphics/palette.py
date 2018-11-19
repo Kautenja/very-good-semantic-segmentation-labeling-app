@@ -277,11 +277,15 @@ class Palette(object):
         self._did_change_entry('watershed_compactness', 'watershed', 'compactness')
 
     def _did_change_label(self, _) -> None:
+        """Respond to changes in the label selection list box."""
+        # get the selected items from the list box
         selected = self._app.getListBox('labels')
+        # if the length of the list is 0 (i.e., nothing selected), return
         if len(selected) == 0:
             return
-        selected = selected[0]
-        self.segmentation_args['label'] = selected
+        # grab the first (and only) item in the list as the selected label
+        self.segmentation_args['label'] = selected[0]
+        # call the callback with the updated parameters
         self.callback()
 
     # MARK: Execution Stack
