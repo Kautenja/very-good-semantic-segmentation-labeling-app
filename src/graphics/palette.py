@@ -59,15 +59,10 @@ class Palette(object):
         self._callback = callback if callable(callback) else lambda x: x
         self.segmentation_args = deepcopy(self.DEFAULTS)
         self.segmentation_args['label'] = self.metadata['label'][0]
-        # create an application window
+        # create the application window
         height = self.LABEL_HEIGHT * len(metadata) + self.HEIGHT
-        dims = '{}x{}'.format(self.WIDTH, height)
-        # remove the command line arguments to resolve an error in AppJar
-        argv = deepcopy(sys.argv)
-        sys.argv = sys.argv[0:1]
-        self._app = gui(self.__class__.__name__, dims)
-        # restore the command line arguments
-        sys.argv = argv
+        self._app = gui('Palette', '{}x{}'.format(self.WIDTH, height), False)
+        # instantiate the view call stack
         self._window_did_load(self._app)
         self._view_did_load(self._app)
 
