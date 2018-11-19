@@ -44,7 +44,7 @@ class DataLabeler(object):
         self._opacity = 5
         self._is_brush = multiprocessing.Value('b', True)
         self._brush_size = multiprocessing.Value('i', 5)
-        self._change_cursor = multiprocessing.Value('b', True)
+        self._is_cursor_change = multiprocessing.Value('b', True)
         # create a raw array for sharing image data between processes
         raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
         numpy_array = np.frombuffer(raw_array, dtype='uint8')
@@ -97,23 +97,23 @@ class DataLabeler(object):
         with self._brush_size.get_lock():
             # if the brush size is different, queue a cursor update
             if self._brush_size.value != new_value:
-                self.change_cursor = True
+                self.is_cursor_change = True
             # set the brush size to the new value
             self._brush_size.value = new_value
 
     @property
-    def change_cursor(self) -> bool:
+    def is_cursor_change(self) -> bool:
         """Return True if the cursor has changed, false otherwise."""
         # get the brush mode context and return its value
-        with self._change_cursor.get_lock():
-            return self._change_cursor.value
+        with self._is_cursor_change.get_lock():
+            return self._is_cursor_change.value
 
-    @change_cursor.setter
-    def change_cursor(self, new_value: bool) -> None:
+    @is_cursor_change.setter
+    def is_cursor_change(self, new_value: bool) -> None:
         """Signal a cursor change (True) or clear one (False)."""
         # get the brush mode context and set its value
-        with self._change_cursor.get_lock():
-            self._change_cursor.value = new_value
+        with self._is_cursor_change.get_lock():
+            self._is_cursor_change.value = new_value
 
     @property
     def image(self) -> np.ndarray:
@@ -205,7 +205,7 @@ class DataLabeler(object):
         color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
         # if the selected color is different, queue a cursor update
         if not np.array_equal(self._color, color):
-            self.change_cursor = True
+            self.is_cursor_change = True
         # store the color with the new value
         self._color[:] = color
         # set the is brush flag
@@ -230,10 +230,10 @@ class DataLabeler(object):
     def _update_cursor(self) -> None:
         """Update the mouse cursor for the application window."""
         # if there is not update, return
-        if not self.change_cursor:
+        if not self.is_cursor_change:
             return
         # otherwise dequeue the update
-        self.change_cursor = False
+        self.is_cursor_change = False
         # make a static border ring for the cursor
         ring = make_ring(self.brush_size - 1, self.brush_size)
         cursor = make_cursor(ring, self._brush_border_color)
