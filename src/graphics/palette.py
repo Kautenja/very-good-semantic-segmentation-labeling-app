@@ -65,19 +65,10 @@ class Palette(object):
         self._window_did_load(self._app)
         self._view_did_load(self._app)
 
-    def callback(self, args: any) -> None:
-        """
-        Call the callback on a background thread.
-
-        Args:
-            args: the arguments to pass to the internal callback
-
-        Returns:
-            None
-
-        """
+    def callback(self) -> None:
+        """Call the callback on a background thread."""
         # create the thread and start it
-        Thread(target=self._callback, args=(args,)).start()
+        Thread(target=self._callback, args=(self.segmentation_args,)).start()
 
     @classmethod
     def thread(cls, metadata: pd.DataFrame, callback=None):
@@ -224,17 +215,17 @@ class Palette(object):
     def _did_change_paint(self, _) -> None:
         selected = self._app.getRadioButton('paint')
         self.segmentation_args['paint'] = selected.lower().replace(' ', '_')
-        self.callback(self.segmentation_args)
+        self.callback()
 
     def _did_change_brush_size(self, _) -> None:
         selected = self._app.getScale('Brush Size')
         self.segmentation_args['brush_size'] = int(selected)
-        self.callback(self.segmentation_args)
+        self.callback()
 
     def _did_change_super_pixel(self, _) -> None:
         selected = self._app.getRadioButton('super_pixel')
         self.segmentation_args['super_pixel'] = selected.lower().replace(' ', '_')
-        self.callback(self.segmentation_args)
+        self.callback()
 
     def _did_change_entry(self, title, alg, param):
         if self._app.getEntry(title) == "":
@@ -248,7 +239,7 @@ class Palette(object):
             except ValueError:
                 self._app.setEntryInvalid(title)
                 return
-        self.callback(self.segmentation_args)
+        self.callback()
 
     def _did_change_felzenszwalb_scale(self, _) -> None:
         self._did_change_entry('felzenszwalb_scale', 'felzenszwalb', 'scale')
@@ -289,7 +280,7 @@ class Palette(object):
             return
         selected = selected[0]
         self.segmentation_args['label'] = selected
-        self.callback(self.segmentation_args)
+        self.callback()
 
     # MARK: Execution Stack
 
