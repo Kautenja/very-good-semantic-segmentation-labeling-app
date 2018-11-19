@@ -238,8 +238,8 @@ class DataLabeler(object):
         ring = make_ring(self.brush_size - 1, self.brush_size)
         cursor = make_cursor(ring, self._brush_border_color)
         # make a circle with the current color
-        circle = make_circle(self.brush_size) - ring
-        cursor = cursor + make_cursor(circle, self._color)
+        brush_circle = make_circle(self.brush_size) - ring
+        cursor = cursor + make_cursor(brush_circle, self._color)
         # create the pyglet cursor object and set it
         mouse = pyglet_cursor(cursor)
         self._view.set_cursor(mouse)
