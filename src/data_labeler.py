@@ -200,7 +200,7 @@ class DataLabeler(object):
 
         """
         # set the color from the metadata
-        color = self._metadata.set_index('label').loc[palette_data['label']]['rgb']
+        color = self._metadata.set_index('label')['rgb'][palette_data['label']]
         # if the selected color is different, queue a cursor update
         if not np.array_equal(self._color, color):
             self.is_cursor_change = True
