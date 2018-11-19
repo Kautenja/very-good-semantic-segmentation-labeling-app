@@ -90,13 +90,10 @@ class Palette(object):
 
         """
         # instantiate a palette with the standard arguments
-        palette = cls(metadata, callback)
+        def run():
+            cls(metadata, callback).run()
         # create the background thread (process in Python abstract) as a daemon
-        process = Process(target=palette.run, daemon=True)
-        # start the process
-        process.start()
-
-        return palette, process
+        Process(target=run, daemon=True).start()
 
     def _view_did_load(self, app) -> None:
         """Setup the sub-views after the view is loaded into memory."""
