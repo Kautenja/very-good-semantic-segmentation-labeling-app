@@ -53,6 +53,8 @@ class DataLabeler(object):
         raw_array = multiprocessing.RawArray('i', int(np.prod(image.shape[:-1])))
         numpy_array = np.frombuffer(raw_array, dtype='int32')
         self._super_pixel_segments = numpy_array.reshape(image.shape[:-1])
+        # create a dictionary for looking up colors by label name
+        self._label_to_rgb = self._metadata.set_index('label')['rgb']
         # if there is no segmentation, initialize as the first label
         if self._segmentation is None:
             self._segmentation = np.zeros_like(image, dtype='uint8')
@@ -200,7 +202,7 @@ class DataLabeler(object):
 
         """
         # set the color from the metadata
-        color = self._metadata.set_index('label')['rgb'][palette_data['label']]
+        color = self._label_to_rgb[palette_data['label']]
         # if the selected color is different, queue a cursor update
         if not np.array_equal(self._color, color):
             self.is_cursor_change = True
