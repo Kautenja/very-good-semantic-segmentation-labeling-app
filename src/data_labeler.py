@@ -42,8 +42,8 @@ class DataLabeler(object):
         self._segmentation = segmentation
         self._brush_border_color = brush_border_color
         self._opacity = 5
-        self._brush_size = multiprocessing.Value('i', 5)
         self._is_brush = multiprocessing.Value('b', True)
+        self._brush_size = multiprocessing.Value('i', 5)
         self._change_cursor = multiprocessing.Value('b', True)
         # create a raw array for sharing image data between processes
         raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
@@ -72,16 +72,30 @@ class DataLabeler(object):
     @property
     def is_brush(self) -> bool:
         """Return True if in brush mode or False if in super pixel mode."""
-        # get the brush context and return its value
+        # get the brush mode context and return its value
         with self._is_brush.get_lock():
             return self._is_brush.value
 
     @is_brush.setter
     def is_brush(self, new_value: bool) -> None:
-        """Return True if in brush mode or False if in super pixel mode."""
-        # get the brush context and return its value
+        """Set the brush mode to brush (True) or super pixel (False)."""
+        # get the brush mode context and set its value
         with self._is_brush.get_lock():
             self._is_brush.value = new_value
+
+    @property
+    def brush_size(self) -> int:
+        """Return the size of the brush."""
+        # get the brush size context and return its value
+        with self._brush_size.get_lock():
+            return self._brush_size.value
+
+    @brush_size.setter
+    def brush_size(self, new_value: int) -> None:
+        """Set the size of the brush to a new value."""
+        # get the brush size context and set its value
+        with self._brush_size.get_lock():
+            self._brush_size.value = new_value
 
     @property
     def image(self) -> np.ndarray:
@@ -131,9 +145,8 @@ class DataLabeler(object):
         """
         # if brush mode, draw on the image use the circles
         if self.is_brush:
-            with self._brush_size.get_lock():
-                x, y = circle(mouse_x, mouse_y, self._brush_size.value)
-                self._segmentation[y, x] = self._color
+            x, y = circle(mouse_x, mouse_y, self.brush_size)
+            self._segmentation[y, x] = self._color
         # if super pixel mode, draw on super pixels
         else:
             super_pixel = self._super_pixel_segments[mouse_y, mouse_x]
@@ -180,14 +193,13 @@ class DataLabeler(object):
         self._color[:] = color
         # set the is brush flag
         self.is_brush = palette_data['paint'] == 'brush'
-        # set the brush size variable
-        with self._brush_size.get_lock():
-            # if the brush size is different, queue a cursor update
-            if self._brush_size.value != palette_data['brush_size']:
-                with self._change_cursor.get_lock():
-                    self._change_cursor.value = True
-            # store the brush size with the new value
-            self._brush_size.value = palette_data['brush_size']
+        # if the brush size is different, queue a cursor update
+        # TODO: move to the brush size setter
+        if self.brush_size != palette_data['brush_size']:
+            with self._change_cursor.get_lock():
+                self._change_cursor.value = True
+        # store the brush size with the new value
+        self.brush_size = palette_data['brush_size']
         # if the palette is in super pixel mode, get that data
         if palette_data['paint'] == 'super_pixel':
             # get the algorithm from the dictionary
@@ -212,17 +224,15 @@ class DataLabeler(object):
                 return
             # otherwise dequeue the update
             self._change_cursor.value = False
-        # update the cursor with the brush size and color
-        with self._brush_size.get_lock():
-            # make a static border ring for the cursor
-            ring = make_ring(self._brush_size.value - 1, self._brush_size.value)
-            cursor = make_cursor(ring, self._brush_border_color)
-            # make a circle with the current color
-            circle = make_circle(self._brush_size.value) - ring
-            cursor = cursor + make_cursor(circle, self._color)
-            # create the pyglet cursor object and set it
-            mouse = pyglet_cursor(cursor)
-            self._view.set_cursor(mouse)
+        # make a static border ring for the cursor
+        ring = make_ring(self.brush_size - 1, self.brush_size)
+        cursor = make_cursor(ring, self._brush_border_color)
+        # make a circle with the current color
+        circle = make_circle(self.brush_size) - ring
+        cursor = cursor + make_cursor(circle, self._color)
+        # create the pyglet cursor object and set it
+        mouse = pyglet_cursor(cursor)
+        self._view.set_cursor(mouse)
 
     def run(self) -> None:
         """Run the simulation."""
