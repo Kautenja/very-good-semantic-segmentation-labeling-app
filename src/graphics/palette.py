@@ -60,14 +60,20 @@ class Palette(object):
         self.segmentation_args['label'] = self.metadata['label'][0]
         # create the application window
         height = self.LABEL_HEIGHT * len(metadata) + self.HEIGHT
-        self._app = gui('Palette', '{}x{}'.format(self.WIDTH, height), False)
+        self._app = gui(
+            title=self.__class__.__name__,
+            geom='{}x{}'.format(self.WIDTH, height),
+            handleArgs=False,
+            showIcon=False,
+        )
         # instantiate the view call stack
         self._window_did_load(self._app)
         self._view_did_load(self._app)
 
     def callback(self) -> None:
         """Call the callback on a background thread."""
-        # create the thread and start it
+        # create a thread for the callback and start it. this process is
+        # already a daemon so this thread cant – and need not – be a daemon
         Thread(target=self._callback, args=(self.segmentation_args,)).start()
 
     @classmethod
@@ -85,9 +91,13 @@ class Palette(object):
             - the background thread running the palette
 
         """
+        # instantiate a palette with the standard arguments
         palette = cls(metadata, callback)
+        # create the background thread (process in Python abstract) as a daemon
         process = Process(target=palette.run, daemon=True)
+        # start the process
         process.start()
+
         return palette, process
 
     # MARK: View Hierarchy
