@@ -1,5 +1,6 @@
+appJar
 numpy
 pandas
 Pillow
 pyglet
-skimage
+scikit-image
