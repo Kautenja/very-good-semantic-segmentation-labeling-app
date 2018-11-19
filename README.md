@@ -1,6 +1,6 @@
 # Very Good Semantic Segmentation Labeling App
 
-![screenshot](https://user-images.githubusercontent.com/2184469/48598236-89d16d00-e927-11e8-880a-44986a732b90.png)
+![screenshot](https://user-images.githubusercontent.com/2184469/48687452-19c12200-eb87-11e8-94f7-cdae0e961e1d.png)
 
 ## Installation
 
