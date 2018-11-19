@@ -225,8 +225,13 @@ class Palette(object):
 
     def _did_change_super_pixel(self, _) -> None:
         """Respond to changes in the selected super pixel algorithm."""
+        # get the currently selected tab from the super pixel tab bar
         selected = self._app.getTabbedFrameSelectedTab('super_pixel')
-        self.segmentation_args['super_pixel'] = selected.lower().replace(' ', '_')
+        # convert to lower case and replace spaces with under scores
+        selected = selected.lower().replace(' ', '_')
+        # set the super pixel algorithm to the selected tab
+        self.segmentation_args['super_pixel'] = selected
+        # pass the data to the callback
         self.callback()
 
     def _did_change_entry(self,
