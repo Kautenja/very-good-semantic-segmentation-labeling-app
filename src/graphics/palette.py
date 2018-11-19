@@ -1,5 +1,4 @@
 """A palette for working with semantic segmentation labeling."""
-import sys
 from copy import deepcopy
 from threading import Thread
 from multiprocessing import Process
