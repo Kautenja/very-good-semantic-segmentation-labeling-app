@@ -74,26 +74,40 @@ class Window(object):
         self._window.event(self.on_mouse_scroll)
 
     def on_mouse_scroll(self, x: int, y: int, dx: float, dy: float) -> None:
-        """Respond to mouse scrolling events."""
+        """
+        Respond to mouse scrolling events.
+
+        Args:
+            x: the x position of the mouse
+            y: the y position of the mouse
+            dx: the rate of change in the x position
+            dy: the rate of change in the y position
+
+        Returns:
+            None
+
+        """
         # Get the scaling factor
-        f = ZOOM_IN_FACTOR if dy > 0 else ZOOM_OUT_FACTOR if dy < 0 else 1
+        scale = ZOOM_IN_FACTOR if dy > 0 else ZOOM_OUT_FACTOR if dy < 0 else 1
         # check If zoom_level is in the legal range
-        if .2 < self.zoom_level * f < 5:
-            self.zoom_level *= f
-            # calculate the position of the mouse
-            mouse_x = x / self.width
-            mouse_y = y / self.height
-            # determine the position of the mouse within the image
-            mouse_x_in_img = self.left + mouse_x * self.zoomed_width
-            mouse_y_in_img = self.bottom + mouse_y * self.zoomed_height
-            # update the zoomed width and height variables
-            self.zoomed_width *= f
-            self.zoomed_height *= f
-            # update the points of the image view frame
-            self.left = mouse_x_in_img - mouse_x * self.zoomed_width
-            self.right = mouse_x_in_img + (1 - mouse_x) * self.zoomed_width
-            self.bottom = mouse_y_in_img - mouse_y * self.zoomed_height
-            self.top = mouse_y_in_img + (1 - mouse_y) * self.zoomed_height
+        if not 0.2 < self.zoom_level * scale < 5:
+            return
+        # scale the zoom level
+        self.zoom_level *= scale
+        # calculate the position of the mouse
+        mouse_x = x / self.width
+        mouse_y = y / self.height
+        # determine the position of the mouse within the image
+        mouse_x_in_img = self.left + mouse_x * self.zoomed_width
+        mouse_y_in_img = self.bottom + mouse_y * self.zoomed_height
+        # update the zoomed width and height variables
+        self.zoomed_width *= scale
+        self.zoomed_height *= scale
+        # update the points of the image view frame
+        self.left = mouse_x_in_img - mouse_x * self.zoomed_width
+        self.right = mouse_x_in_img + (1 - mouse_x) * self.zoomed_width
+        self.bottom = mouse_y_in_img - mouse_y * self.zoomed_height
+        self.top = mouse_y_in_img + (1 - mouse_y) * self.zoomed_height
 
     def set_cursor(self, cursor) -> None:
         """
