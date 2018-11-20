@@ -304,7 +304,8 @@ class Palette(object):
         title: str,
         alg: str,
         param: str,
-        data_type: 'Callable'
+        data_type: 'Callable',
+        is_valid: 'Callable'=None,
     ) -> None:
         """
         Respond to changes in a segmentation algorithm hyperparameters.
@@ -314,6 +315,7 @@ class Palette(object):
             alg: the name of the algorithm to set parameters for
             param: the name of the parameter to set
             data_type: the data type to cast the
+            is_valid: a method to check if the input is valid
 
         Returns:
             None
@@ -329,6 +331,8 @@ class Palette(object):
             # try to cast the input to the given input type
             try:
                 selected = data_type(self._app.getEntry(title))
+                if is_valid is not None and not is_valid(selected):
+                    raise ValueError('not a valid entry')
                 self.segmentation_args[alg][param] = selected
                 # set the UI element to valid (green check)
                 self._app.setEntryValid(title)
@@ -371,7 +375,8 @@ class Palette(object):
             'slic_n_segments',
             'slic',
             'n_segments',
-            int
+            int,
+            is_valid=lambda x: x > 0
         )
 
     def _did_change_slic_compactness(self, _) -> None:
@@ -380,7 +385,8 @@ class Palette(object):
             'slic_compactness',
             'slic',
             'compactness',
-            float
+            float,
+            is_valid=lambda x: x > 0
         )
 
     def _did_change_slic_sigma(self, _) -> None:
@@ -398,7 +404,8 @@ class Palette(object):
             'quickshift_kernel_size',
             'quickshift',
             'kernel_size',
-            int
+            int,
+            is_valid=lambda x: x >= 1
         )
 
     def _did_change_quickshift_max_distance(self, _) -> None:
@@ -407,7 +414,8 @@ class Palette(object):
             'quickshift_max_dist',
             'quickshift',
             'max_dist',
-            float
+            float,
+            is_valid=lambda x: x >= 1
         )
 
     def _did_change_quickshift_ratio(self, _) -> None:
@@ -425,7 +433,8 @@ class Palette(object):
             'watershed_markers',
             'watershed',
             'markers',
-            int
+            int,
+            is_valid=lambda x: x > 0
         )
 
     def _did_change_watershed_compactness(self, _) -> None:
