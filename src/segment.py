@@ -15,15 +15,13 @@ SEGMENTATION_LIST = [felzenszwalb, slic, quickshift, watershed]
 SEGMENTATION = {alg.__name__: alg for alg in SEGMENTATION_LIST}
 
 
-
-def segment(image, algorithm: str, mark: bool=True, **kwargs):
+def segment(image, algorithm: str, **kwargs):
     """
     Segment an input image using given segmentation algorithm and params.
 
     Args:
         image: the image to segment
         algorithm: the string name of the skimage segmentation algorithm to use
-        mark: whether to return the marked image (True) or segments (False)
         kwargs: the key word arguments to pass to the segmentation algorithm
 
     Returns:
@@ -42,13 +40,10 @@ def segment(image, algorithm: str, mark: bool=True, **kwargs):
     if algorithm == 'watershed':
         image = sobel(rgb2gray(image))
     # apply the segmentation algorithm with given key word arguments
-    segmentation = segment_image(image, **kwargs)
-    boundaries = mark_boundaries(image, segmentation,
-        color=(1, 1, 1),
-        mode='outer'
-    )
+    segments = segment_image(image, **kwargs)
+    boundaries = mark_boundaries(image, segments, (1, 1, 1)).astype('uint8')
 
-    return segmentation, (255 * boundaries).astype('uint8')
+    return segments, boundaries
 
 
 # define the outward facing API of this module
