@@ -13,7 +13,9 @@ ZOOM_OUT_FACTOR = 1 / ZOOM_IN_FACTOR
 class Window(object):
     """A simple class for viewing images using a pyglet window."""
 
-    def __init__(self, caption: str, height: int, width: int, encoding: str='RGBA') -> None:
+    def __init__(self, caption: str, height: int, width: int,
+        encoding: str='RGBA'
+    ) -> None:
         """
         Initialize a new image viewer.
 
