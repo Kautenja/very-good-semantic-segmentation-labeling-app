@@ -39,10 +39,8 @@ class Window(object):
         self.encoding = encoding
         self._window = None
         self._left = 0
-        # TODO: is this necessary?
         self._right = width
         self._bottom = 0
-        # TODO: is this necessary?
         self._top = height
         self._zoom_level = 1
         self._zoomed_width = width
