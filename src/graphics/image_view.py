@@ -48,7 +48,7 @@ class ImageView(object):
         """
         self._window.window.event(handler)
 
-    def left_mouse_handler(self, x: int, y: int, handler: 'Callable') -> any:
+    def _left_mouse_handler(self, x: int, y: int, handler: 'Callable') -> any:
         """
         Handle mouse events when the left button is pressed, held, released.
 
@@ -85,7 +85,7 @@ class ImageView(object):
             """Respond to a pyglet mouse click event."""
             # if the button is the left button, pass values to the handler
             if buttons == pyglet.window.mouse.LEFT:
-                return self.left_mouse_handler(x, y, handler)
+                return self._left_mouse_handler(x, y, handler)
         # add the method as an event handler to the window
         self.add_event_handler(on_mouse_press)
 
@@ -107,7 +107,7 @@ class ImageView(object):
                 self._window.move_camera(dx, dy)
             # if the button is the left button, pass values to the handler
             elif buttons == pyglet.window.mouse.LEFT:
-                return self.left_mouse_handler(x, y, handler)
+                return self._left_mouse_handler(x, y, handler)
         # add the method as an event handler to the window
         self.add_event_handler(on_mouse_drag)
 
