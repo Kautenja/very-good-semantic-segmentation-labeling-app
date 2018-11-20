@@ -90,7 +90,7 @@ class DataLabeler(object):
         """Return the size of the brush."""
         # get the brush size context and return its value
         with self._brush_size.get_lock():
-            return int(self._brush_size.value / self._view._window.zoom_level)
+            return self._brush_size.value
 
     @brush_size.setter
     def brush_size(self, new_value: int) -> None:
@@ -166,8 +166,10 @@ class DataLabeler(object):
         shape = self._segmentation.shape
         # if brush mode, draw on the image use the circles
         if self.is_brush:
+            # scale the brush size according to the windows zoom level
+            brush_size = int(self.brush_size / self._view._window.zoom_level)
             # get the indexes of the circle in the segmentation
-            circle_x, circle_y = circle(mouse_x, mouse_y, self.brush_size)
+            circle_x, circle_y = circle(mouse_x, mouse_y, brush_size)
             # set the pixels outside the frame to the last pixel along the axis
             circle_y[circle_y < 0] = 0
             circle_y[circle_y >= shape[0]] = shape[0] - 1
