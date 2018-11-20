@@ -59,7 +59,7 @@ class ImageView(object):
             None
 
         """
-        def on_mouse_press(x, y, buttons, modifiers) -> None:
+        def on_mouse_press(x, y, buttons, _) -> None:
             """Respond to a pyglet mouse click event."""
             # if the button is the left button, pass values to the handler
             if buttons == pyglet.window.mouse.LEFT:
@@ -86,7 +86,7 @@ class ImageView(object):
             None
 
         """
-        def on_mouse_drag(x, y, dx, dy, buttons, modifiers) -> None:
+        def on_mouse_drag(x, y, dx, dy, buttons, _) -> None:
             """Respond to a pyglet mouse drag event."""
             # if the button is the right button, move the camera
             if buttons == pyglet.window.mouse.RIGHT:
