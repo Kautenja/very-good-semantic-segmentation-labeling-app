@@ -120,10 +120,13 @@ class Window(object):
             None
 
         """
-        self.left += dx * self.zoom_level
-        self.right += dx * self.zoom_level
-        self.bottom += dy * self.zoom_level
-        self.top += dy * self.zoom_level
+        # determine the speed to move the camera at
+        speed = max(1.0, self.zoom_level)
+        # update the positions of the frame corners
+        self.left += dx * speed
+        self.right += dx * speed
+        self.bottom += dy * speed
+        self.top += dy * speed
 
     def show(self, data: list) -> None:
         """
