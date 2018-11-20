@@ -32,12 +32,12 @@ class Window(object):
         self.width = width
         self.encoding = encoding
         self._window = None
-        self.left   = 0
-        self.right  = width
+        self.left = 0
+        self.right = width
         self.bottom = 0
-        self.top    = height
+        self.top = height
         self.zoom_level = 1
-        self.zoomed_width  = width
+        self.zoomed_width = width
         self.zoomed_height = height
 
     def __repr__(self) -> str:
@@ -108,9 +108,19 @@ class Window(object):
         """
         self._window.set_mouse_cursor(cursor)
 
+    def reset_camera(self) -> None:
+        """Reset the camera to it's default position."""
+        self.left = 0
+        self.right = self.width
+        self.bottom = 0
+        self.top = self.width
+        self.zoom_level = 1
+        self.zoomed_width = self.width
+        self.zoomed_height = self.height
+
     def move_camera(self, dx: float, dy: float) -> None:
         """
-        Move the camera of the window by a differential.
+        Move the camera of the window with given velocity.
 
         Args:
             dx: the rate of change in x value

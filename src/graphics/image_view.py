@@ -86,6 +86,8 @@ class ImageView(object):
             # if the button is the left button, pass values to the handler
             if buttons == pyglet.window.mouse.LEFT:
                 return self._left_mouse_handler(x, y, handler)
+            elif buttons == pyglet.window.mouse.MIDDLE:
+                self._window.reset_camera()
         # add the method as an event handler to the window
         self.add_event_handler(on_mouse_press)
 
