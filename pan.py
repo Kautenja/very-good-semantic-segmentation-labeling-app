@@ -18,36 +18,36 @@ class App(pyglet.window.Window):
         self.zoomed_width  = width
         self.zoomed_height = height
 
-    # def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-    def on_mouse_scroll(self, x, y, dx, dy):
-        # Move camera
-        self.left   -= dx*self.zoom_level
-        self.right  -= dx*self.zoom_level
-        self.bottom -= dy*self.zoom_level
-        self.top    -= dy*self.zoom_level
-
-    # def on_mouse_scroll(self, x, y, dx, dy):
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+    # def on_mouse_scroll(self, x, y, dx, dy):
+        # Move camera
+        self.left   -= dx * self.zoom_level
+        self.right  -= dx * self.zoom_level
+        self.bottom -= dy * self.zoom_level
+        self.top    -= dy * self.zoom_level
+
+    def on_mouse_scroll(self, x, y, dx, dy):
+    # def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         # Get scale factor
         f = ZOOM_IN_FACTOR if dy > 0 else ZOOM_OUT_FACTOR if dy < 0 else 1
         # If zoom_level is in the proper range
-        if .2 < self.zoom_level*f < 5:
+        if .2 < self.zoom_level * f < 5:
 
             self.zoom_level *= f
 
-            mouse_x = x/self.width
-            mouse_y = y/self.height
+            mouse_x = x / self.width
+            mouse_y = y / self.height
 
-            mouse_x_in_world = self.left   + mouse_x*self.zoomed_width
-            mouse_y_in_world = self.bottom + mouse_y*self.zoomed_height
+            mouse_x_in_world = self.left + mouse_x * self.zoomed_width
+            mouse_y_in_world = self.bottom + mouse_y * self.zoomed_height
 
             self.zoomed_width  *= f
             self.zoomed_height *= f
 
-            self.left   = mouse_x_in_world - mouse_x*self.zoomed_width
-            self.right  = mouse_x_in_world + (1 - mouse_x)*self.zoomed_width
-            self.bottom = mouse_y_in_world + mouse_y*self.zoomed_height
-            self.top    = mouse_y_in_world - (1 - mouse_y)*self.zoomed_height
+            self.left   = mouse_x_in_world - mouse_x * self.zoomed_width
+            self.right  = mouse_x_in_world + (1 - mouse_x) * self.zoomed_width
+            self.bottom = mouse_y_in_world - mouse_y * self.zoomed_height
+            self.top    = mouse_y_in_world + (1 - mouse_y) * self.zoomed_height
 
     def on_draw(self):
         # Initialize Projection matrix
