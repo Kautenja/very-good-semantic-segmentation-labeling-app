@@ -158,6 +158,27 @@ class Window(object):
         self.bottom += dy * speed
         self.top += dy * speed
 
+    def transform(self, x: int, y: int) -> any:
+        """
+        Transform x and y values on the screen to values on the base image.
+
+        Args:
+            x: the x position on the screen
+            y: the y position on the screen
+
+        Returns:
+            the transformed x and y values
+
+        """
+        # determine the position of the mouse inside the original frame
+        x = x - self.left
+        y = y - self.bottom
+        # transform the mouse positions to the new frame size
+        x /= self.zoom_level
+        y /= self.zoom_level
+        # pass the values to the callback
+        return x, y
+
     def show(self, data: list) -> None:
         """
         Show an array of pixels on the window.

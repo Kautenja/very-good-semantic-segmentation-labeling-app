@@ -48,28 +48,6 @@ class ImageView(object):
         """
         self._window.window.event(handler)
 
-    def _left_mouse_handler(self, x: int, y: int, handler: 'Callable') -> any:
-        """
-        Handle mouse events when the left button is pressed, held, released.
-
-        Args:
-            x: the x position on the screen
-            y: the y position on the screen
-            handler: the callable handler
-
-        Returns:
-            the output of the handler method
-
-        """
-        # determine the position of the mouse inside the original frame
-        x = x - self._window.left
-        y = y - self._window.bottom
-        # transform the mouse positions to the new frame size
-        x /= self._window.zoom_level
-        y /= self._window.zoom_level
-        # pass the values to the callback
-        return handler(x, self.image_shape[0] - y)
-
     def add_on_mouse_press_handler(self, handler) -> None:
         """
         Add an on mouse press event handler to the view.
@@ -85,7 +63,8 @@ class ImageView(object):
             """Respond to a pyglet mouse click event."""
             # if the button is the left button, pass values to the handler
             if buttons == pyglet.window.mouse.LEFT:
-                return self._left_mouse_handler(x, y, handler)
+                x, y = self._window.transform(x, y)
+                handler(x, self.image_shape[0] - y)
             # if the button is the middle button, reset the camera
             elif buttons == pyglet.window.mouse.MIDDLE:
                 self._window.reset_camera()
@@ -105,12 +84,13 @@ class ImageView(object):
         """
         def on_mouse_drag(x, y, dx, dy, buttons, _) -> None:
             """Respond to a pyglet mouse drag event."""
-            # if the button is the right button, move the camera
-            if buttons == pyglet.window.mouse.RIGHT:
-                self._window.move_camera(dx, dy)
             # if the button is the left button, pass values to the handler
-            elif buttons == pyglet.window.mouse.LEFT:
-                return self._left_mouse_handler(x, y, handler)
+            if buttons == pyglet.window.mouse.LEFT:
+                x, y = self._window.transform(x, y)
+                handler(x, self.image_shape[0] - y)
+            # if the button is the right button, move the camera
+            elif buttons == pyglet.window.mouse.RIGHT:
+                self._window.move_camera(dx, dy)
         # add the method as an event handler to the window
         self.add_event_handler(on_mouse_drag)
 
