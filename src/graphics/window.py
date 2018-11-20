@@ -166,26 +166,26 @@ class Window(object):
         self._bottom += dy * speed
         self._top += dy * speed
 
-    def transform(self, x: int, y: int) -> tuple:
+    def transform(self, screen_x: int, screen_y: int) -> tuple:
         """
         Transform x and y values on the screen to values on the base image.
 
         Args:
-            x: the x position on the screen
-            y: the y position on the screen
+            screen_x: the x position on the screen
+            screen_y: the y position on the screen
 
         Returns:
             the transformed x and y values
 
         """
         # determine the position of the mouse inside the original frame
-        x = x - self._left
-        y = y - self._bottom
-        # transform the mouse positions to the new frame size
-        x /= self._zoom_level
-        y /= self._zoom_level
+        frame_x = screen_x - self._left
+        frame_y = screen_y - self._bottom
+        # transform the mouse positions to the zoomed frame size
+        image_x = frame_x / self._zoom_level
+        image_y = frame_y / self._zoom_level
         # pass the values to the callback
-        return int(x), int(y)
+        return int(image_x), int(image_y)
 
     def show(self, data: list) -> None:
         """
