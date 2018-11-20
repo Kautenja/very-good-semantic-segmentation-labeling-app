@@ -1,6 +1,5 @@
 """A simple class for viewing images using a pyglet window."""
-from pyglet.window import Window as _Window
-from pyglet.image import ImageData as _ImageData
+import pyglet
 from pyglet import gl
 
 
@@ -71,7 +70,7 @@ class Window(object):
         return self._window is not None
 
     @property
-    def window(self) -> _Window:
+    def window(self) -> pyglet.window.Window:
         """Return the pyglet window inside this image viewer."""
         # open the window if it isn't open already
         if not self.is_open:
@@ -80,7 +79,7 @@ class Window(object):
 
     def open(self) -> None:
         """Open the window."""
-        self._window = _Window(
+        self._window = pyglet.window.Window(
             caption=self.caption,
             height=self.height,
             width=self.width,
@@ -213,7 +212,7 @@ class Window(object):
         # iterate over the frames in the input
         for frame in frames:
             # create an image data object
-            image = _ImageData(
+            frame = pyglet.image.ImageData(
                 frame.shape[1],
                 frame.shape[0],
                 self.encoding,
@@ -223,7 +222,7 @@ class Window(object):
             # set the alpha channel blend mode for the image
             gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
             # blit the image to the window
-            image.blit(self._left, self._bottom,
+            frame.blit(self._left, self._bottom,
                 width=self._zoomed_width,
                 height=self._zoomed_height
             )
