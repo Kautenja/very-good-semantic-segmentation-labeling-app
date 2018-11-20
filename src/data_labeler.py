@@ -197,8 +197,8 @@ class DataLabeler(object):
             mask = self._super_pixel_segments == super_pixel
             self._segmentation[mask] = self._color
 
-    def _blit(self) -> None:
-        """Blit local data structures to the GUI."""
+    def _update_screen(self) -> None:
+        """Update the screen from local data structures."""
         # setup the source image with an alpha channel
         alpha = 255 * np.ones_like(self.image[..., 0:1])
         image = np.concatenate([self._image, alpha], axis=-1).astype('uint8')
@@ -282,9 +282,8 @@ class DataLabeler(object):
         # start the application loop
         self._is_running = True
         while self._is_running:
-            # update the cursor and blit changes to the screen
             self._update_cursor()
-            self._blit()
+            self._update_screen()
         # close the image view
         self._view.close()
 
