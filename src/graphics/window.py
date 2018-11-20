@@ -61,6 +61,11 @@ class Window(object):
         self.close()
 
     @property
+    def zoom_level(self) -> float:
+        """Return the zoom level of the window."""
+        return self._zoom_level
+
+    @property
     def is_open(self) -> bool:
         """Return a boolean determining if this window is open."""
         return self._window is not None

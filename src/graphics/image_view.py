@@ -22,6 +22,11 @@ class ImageView(object):
         self.image_shape = image_shape
         self._window = Window(caption, *image_shape)
 
+    @property
+    def zoom_level(self) -> float:
+        """Return the zoom level of the window."""
+        return self._window.zoom_level
+
     def set_cursor(self, cursor) -> None:
         """
         Set the windows cursor to a new value.
