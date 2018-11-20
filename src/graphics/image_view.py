@@ -62,13 +62,13 @@ class ImageView(object):
 
         """
         # determine the position of the mouse inside the original frame
-        x = x + -self._window.left
-        y = self.image_shape[0] - y + self._window.bottom
+        x = x - self._window.left
+        y = y - self._window.bottom
         # transform the mouse positions to the new frame size
         x /= self._window.zoom_level
-        y = self.image_shape[0] - (self.image_shape[0] - y) / self._window.zoom_level
+        y /= self._window.zoom_level
         # pass the values to the callback
-        return handler(x, y)
+        return handler(x, self.image_shape[0] - y)
 
     def add_on_mouse_press_handler(self, handler) -> None:
         """
