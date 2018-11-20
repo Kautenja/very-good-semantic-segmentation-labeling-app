@@ -55,12 +55,12 @@ class DataLabeler(object):
         self._brush_size = multiprocessing.Value('i', 5)
         self._is_cursor_change = multiprocessing.Value('b', True)
         # create a raw array for sharing image data between processes
-        raw_array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
-        numpy_array = np.frombuffer(raw_array, dtype='uint8')
+        array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
+        numpy_array = np.frombuffer(array, dtype='uint8')
         self._super_pixel = numpy_array.reshape(image.shape)
         # setup an array for the super pixel segmentation map
-        raw_array = multiprocessing.RawArray('i', int(np.prod(image.shape[:-1])))
-        numpy_array = np.frombuffer(raw_array, dtype='int32')
+        array = multiprocessing.RawArray('i', int(np.prod(image.shape[:-1])))
+        numpy_array = np.frombuffer(array, dtype='int32')
         self._super_pixel_segments = numpy_array.reshape(image.shape[:-1])
         # create a dictionary for looking up colors by label name
         self._label_to_rgb = self._metadata.set_index('label')['rgb']
@@ -69,8 +69,8 @@ class DataLabeler(object):
             self._segmentation = np.zeros_like(image, dtype='uint8')
             self._segmentation[:, :, range(3)] = metadata['rgb'][0]
         # set the default color to the first label
-        raw_array = multiprocessing.RawArray('b', 3)
-        self._color = np.frombuffer(raw_array, dtype='uint8')
+        array = multiprocessing.RawArray('b', 3)
+        self._color = np.frombuffer(array, dtype='uint8')
         self._color[:] = metadata['rgb'][0]
         # setup the window for the simulator and register event handlers
         self._view = ImageView('Data Labeler', image.shape[:2])
