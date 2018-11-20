@@ -12,6 +12,12 @@ from .graphics.palette import Palette
 from .segment import segment
 
 
+# the keyboard code for the number 0
+KEY_ZERO = 48
+# the keyboard code for the number 9
+KEY_NINE = 59
+
+
 class DataLabeler(object):
     """A semantic segmentation labeling application."""
 
@@ -21,6 +27,7 @@ class DataLabeler(object):
         output_file: str,
         segmentation: np.ndarray=None,
         brush_border_color: tuple=(255, 255, 255),
+        super_pixel_color: tuple=(127, 127, 127),
     ) -> None:
         """
         Initialize a new data labeling application.
@@ -31,6 +38,7 @@ class DataLabeler(object):
             output_file: the output file to save segmentations to
             segmentation: an existing segmentation if there is one
             brush_border_color: the border color for the brush
+            super_pixel_color: the color to draw super pixel lines as
 
         Returns:
             None
@@ -41,6 +49,7 @@ class DataLabeler(object):
         self._output_file = output_file
         self._segmentation = segmentation
         self._brush_border_color = brush_border_color
+        self._super_pixel_color = super_pixel_color
         self._opacity = 5
         self._is_brush = multiprocessing.Value('b', True)
         self._brush_size = multiprocessing.Value('i', 5)
@@ -146,10 +155,11 @@ class DataLabeler(object):
             print('saving and quitting')
             Image.fromarray(self._segmentation).save(self._output_file)
             self._is_running = False
-        # if the key is in [48, 59] it's numeric, adjust the opacity overlay
-        elif 48 <= symbol <= 59:
-            print('setting opacity to {}'.format(symbol - 48))
-            self._opacity = symbol - 48
+        # if the key is in [KEY_ZERO, KEY_NINE] it's numeric, adjust the
+        # opacity overlay
+        elif KEY_ZERO <= symbol <= KEY_NINE:
+            print('setting opacity to {}'.format(symbol - KEY_ZERO))
+            self._opacity = symbol - KEY_ZERO
 
     def _on_mouse_press(self, mouse_x: int, mouse_y: int) -> None:
         """
@@ -191,16 +201,18 @@ class DataLabeler(object):
         """Blit local data structures to the GUI."""
         # setup the source image with an alpha channel
         alpha = 255 * np.ones_like(self.image[..., 0:1])
-        img = np.concatenate([self._image, alpha], axis=-1)
+        img = np.concatenate([self._image, alpha], axis=-1).astype('uint8')
         # setup the super pixel segmentations
         sup = np.zeros_like(self.image)
-        sup = mark_boundaries(sup, self._super_pixel_segments, (127, 127, 127))
+        sup = mark_boundaries(sup, self._super_pixel_segments, self._super_pixel_color)
+        # concatenate the first channel of sup as the alpha channel
         sup = np.concatenate([sup, sup[..., 0:1]], axis=-1).astype('uint8')
         # setup the segmentation image with an alpha channel scaled by the
         # opacity parameter of the application
         intensity = 255 * (self._opacity / 9)
         alpha = intensity * np.ones_like(self._segmentation[..., 0:1])
-        seg = np.concatenate([self._segmentation, alpha], axis=-1).astype('uint8')
+        seg = np.concatenate([self._segmentation, alpha], axis=-1)
+        seg = seg.astype('uint8')
         # send the images to the window
         self._view.show([img, seg, sup])
 
