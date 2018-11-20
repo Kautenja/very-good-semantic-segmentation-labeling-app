@@ -26,6 +26,13 @@ class Window(object):
         self.width = width
         self.encoding = encoding
         self._window = None
+        self.left   = 0
+        self.right  = width
+        self.bottom = 0
+        self.top    = height
+        self.zoom_level = 1
+        self.zoomed_width  = width
+        self.zoomed_height = height
 
     def __repr__(self) -> str:
         """Return an executable string representing this object."""
@@ -72,6 +79,23 @@ class Window(object):
         """
         self._window.set_mouse_cursor(cursor)
 
+    def move_camera(self, dx: float, dy: float) -> None:
+        """
+        Move the camera of the window by a differential.
+
+        Args:
+            dx: the rate of change in x value
+            dy: the rate of change in y value
+
+        Returns:
+            None
+
+        """
+        self.left += dx * self.zoom_level
+        self.right += dx * self.zoom_level
+        self.bottom += dy * self.zoom_level
+        self.top += dy * self.zoom_level
+
     def show(self, frame, _flip: bool=True) -> None:
         """
         Show an array of pixels on the window.
@@ -106,7 +130,8 @@ class Window(object):
             # set the alpha channel blend mode for the image
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             # blit the image to the window
-            image.blit(0, 0, width=self._window.width, height=self._window.height)
+            image.blit(self.left, self.bottom, width=self.width, height=self.height)
+
         # flip the changes to the window
         self._window.flip()
 
