@@ -50,8 +50,14 @@ class Window(object):
 
     def __repr__(self) -> str:
         """Return an executable string representing this object."""
-        template = '{}(caption={}, height={}, width={})'
-        return template.format(self.caption, self.height, self.width)
+        template = '{}(caption={}, height={}, width={}, encoding={})'
+        return template.format(
+            self.__class__.__name__,
+            self.caption,
+            self.height,
+            self.width,
+            self.encoding,
+        )
 
     def __del__(self) -> None:
         """Close any open windows and delete this object."""
