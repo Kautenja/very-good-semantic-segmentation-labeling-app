@@ -120,42 +120,81 @@ class Palette(object):
         app.startLabelFrame("Scale")
         app.addValidationEntry("felzenszwalb_scale")
         app.stopLabelFrame()
-        app.setEntryDefault('felzenszwalb_scale', self.segmentation_args['felzenszwalb']['scale'])
-        app.setEntryChangeFunction("felzenszwalb_scale", self._did_change_felzenszwalb_scale)
+        app.setEntryDefault(
+            'felzenszwalb_scale',
+            self.segmentation_args['felzenszwalb']['scale']
+        )
+        app.setEntryChangeFunction(
+            "felzenszwalb_scale",
+            self._did_change_felzenszwalb_scale
+        )
         #     Sigma
         app.startLabelFrame("Sigma")
         app.addValidationEntry("felzenszwalb_sigma")
         app.stopLabelFrame()
-        app.setEntryDefault('felzenszwalb_sigma', self.segmentation_args['felzenszwalb']['sigma'])
-        app.setEntryChangeFunction("felzenszwalb_sigma", self._did_change_felzenszwalb_sigma)
+        app.setEntryDefault(
+            'felzenszwalb_sigma',
+            self.segmentation_args['felzenszwalb']['sigma']
+        )
+        app.setEntryChangeFunction(
+            "felzenszwalb_sigma",
+            self._did_change_felzenszwalb_sigma
+        )
         #     Minimum Size
         app.startLabelFrame("Minimum Size")
         app.addValidationEntry("felzenszwalb_min_size")
         app.stopLabelFrame()
-        app.setEntryDefault('felzenszwalb_min_size', self.segmentation_args['felzenszwalb']['min_size'])
-        app.setEntryChangeFunction("felzenszwalb_min_size", self._did_change_felzenszwalb_min_size)
+        app.setEntryDefault(
+            'felzenszwalb_min_size',
+            self.segmentation_args['felzenszwalb']['min_size']
+        )
+        app.setEntryChangeFunction(
+            "felzenszwalb_min_size",
+            self._did_change_felzenszwalb_min_size
+        )
         app.stopTab()
-        app.setTabbedFrameChangeFunction('super_pixel', self._did_change_super_pixel)
+        app.setTabbedFrameChangeFunction(
+            'super_pixel',
+            self._did_change_super_pixel
+        )
         # SLIC
         #     Number of Segments
         app.startTab("SLIC")
         app.startLabelFrame("Number of Segments")
         app.addValidationEntry("slic_n_segments")
         app.stopLabelFrame()
-        app.setEntryDefault('slic_n_segments', self.segmentation_args['slic']['n_segments'])
-        app.setEntryChangeFunction("slic_n_segments", self._did_change_slic_num_segments)
+        app.setEntryDefault(
+            'slic_n_segments',
+            self.segmentation_args['slic']['n_segments']
+        )
+        app.setEntryChangeFunction(
+            "slic_n_segments",
+            self._did_change_slic_num_segments
+        )
         #     Compactness
         app.startLabelFrame("Compactness ")
         app.addValidationEntry("slic_compactness")
         app.stopLabelFrame()
-        app.setEntryDefault('slic_compactness', self.segmentation_args['slic']['compactness'])
-        app.setEntryChangeFunction("slic_compactness", self._did_change_slic_compactness)
+        app.setEntryDefault(
+            'slic_compactness',
+            self.segmentation_args['slic']['compactness']
+        )
+        app.setEntryChangeFunction(
+            "slic_compactness",
+            self._did_change_slic_compactness
+        )
         #     Sigma
         app.startLabelFrame("Sigma ")
         app.addValidationEntry("slic_sigma")
         app.stopLabelFrame()
-        app.setEntryDefault('slic_sigma', self.segmentation_args['slic']['sigma'])
-        app.setEntryChangeFunction("slic_sigma", self._did_change_slic_sigma)
+        app.setEntryDefault(
+            'slic_sigma',
+            self.segmentation_args['slic']['sigma']
+        )
+        app.setEntryChangeFunction(
+            "slic_sigma",
+            self._did_change_slic_sigma
+        )
         app.stopTab()
         # Quickshift
         #     Kernel Size
@@ -163,20 +202,38 @@ class Palette(object):
         app.startLabelFrame("Kernel Size")
         app.addValidationEntry("quickshift_kernel_size")
         app.stopLabelFrame()
-        app.setEntryDefault('quickshift_kernel_size', self.segmentation_args['quickshift']['kernel_size'])
-        app.setEntryChangeFunction("quickshift_kernel_size", self._did_change_quickshift_kernel_size)
+        app.setEntryDefault(
+            'quickshift_kernel_size',
+            self.segmentation_args['quickshift']['kernel_size']
+        )
+        app.setEntryChangeFunction(
+            "quickshift_kernel_size",
+            self._did_change_quickshift_kernel_size
+        )
         #     Maximum Distance
         app.startLabelFrame("Maximum Distance")
         app.addValidationEntry("quickshift_max_dist")
         app.stopLabelFrame()
-        app.setEntryDefault('quickshift_max_dist', self.segmentation_args['quickshift']['max_dist'])
-        app.setEntryChangeFunction("quickshift_max_dist", self._did_change_quickshift_max_distance)
+        app.setEntryDefault(
+            'quickshift_max_dist',
+            self.segmentation_args['quickshift']['max_dist']
+        )
+        app.setEntryChangeFunction(
+            "quickshift_max_dist",
+            self._did_change_quickshift_max_distance
+        )
         #     Ratio
         app.startLabelFrame("Ratio")
         app.addValidationEntry("quickshift_ratio")
         app.stopLabelFrame()
-        app.setEntryDefault('quickshift_ratio', self.segmentation_args['quickshift']['ratio'])
-        app.setEntryChangeFunction("quickshift_ratio", self._did_change_quickshift_ratio)
+        app.setEntryDefault(
+            'quickshift_ratio',
+            self.segmentation_args['quickshift']['ratio']
+        )
+        app.setEntryChangeFunction(
+            "quickshift_ratio",
+            self._did_change_quickshift_ratio
+        )
         app.stopTab()
         # Watershed
         #     Markers
@@ -184,14 +241,26 @@ class Palette(object):
         app.startLabelFrame('Makers')
         app.addValidationEntry('watershed_markers')
         app.stopLabelFrame()
-        app.setEntryDefault('watershed_markers', self.segmentation_args['watershed']['markers'])
-        app.setEntryChangeFunction('watershed_markers', self._did_change_watershed_markers)
+        app.setEntryDefault(
+            'watershed_markers',
+            self.segmentation_args['watershed']['markers']
+        )
+        app.setEntryChangeFunction(
+            'watershed_markers',
+            self._did_change_watershed_markers
+        )
         #     Compactness
         app.startLabelFrame('Compactness')
         app.addValidationEntry('watershed_compactness')
         app.stopLabelFrame()
-        app.setEntryDefault('watershed_compactness', self.segmentation_args['watershed']['compactness'])
-        app.setEntryChangeFunction('watershed_compactness', self._did_change_watershed_compactness)
+        app.setEntryDefault(
+            'watershed_compactness',
+            self.segmentation_args['watershed']['compactness']
+        )
+        app.setEntryChangeFunction(
+            'watershed_compactness',
+            self._did_change_watershed_compactness
+        )
         app.stopTab()
         app.stopTabbedFrame()
         # add a list box for selecting the labels
@@ -271,47 +340,102 @@ class Palette(object):
 
     def _did_change_felzenszwalb_scale(self, _) -> None:
         """Respond to changes in the felzenszwalb scale parameter."""
-        self._did_change_entry('felzenszwalb_scale', 'felzenszwalb', 'scale', int)
+        self._did_change_entry(
+            'felzenszwalb_scale',
+            'felzenszwalb',
+            'scale',
+            int
+        )
 
     def _did_change_felzenszwalb_sigma(self, _) -> None:
         """Respond to changes in the felzenszwalb sigma parameter."""
-        self._did_change_entry('felzenszwalb_sigma', 'felzenszwalb', 'sigma', float)
+        self._did_change_entry(
+            'felzenszwalb_sigma',
+            'felzenszwalb',
+            'sigma',
+            float
+        )
 
     def _did_change_felzenszwalb_min_size(self, _) -> None:
-        """Respond to changes in the felzenszwalb minimum size parameter."""
-        self._did_change_entry('felzenszwalb_min_size', 'felzenszwalb', 'min_size', int)
+        """Respond to changes in the felzenszwalb min size parameter."""
+        self._did_change_entry(
+            'felzenszwalb_min_size',
+            'felzenszwalb',
+            'min_size',
+            int
+        )
 
     def _did_change_slic_num_segments(self, _) -> None:
         """Respond to changes in the SLIC number of segments parameter."""
-        self._did_change_entry('slic_n_segments', 'slic', 'n_segments', int)
+        self._did_change_entry(
+            'slic_n_segments',
+            'slic',
+            'n_segments',
+            int
+        )
 
     def _did_change_slic_compactness(self, _) -> None:
         """Respond to changes in the SLIC compactness parameter."""
-        self._did_change_entry('slic_compactness', 'slic', 'compactness', float)
+        self._did_change_entry(
+            'slic_compactness',
+            'slic',
+            'compactness',
+            float
+        )
 
     def _did_change_slic_sigma(self, _) -> None:
         """Respond to changes in the SLIC sigma parameter."""
-        self._did_change_entry('slic_sigma', 'slic', 'sigma', float)
+        self._did_change_entry(
+            'slic_sigma',
+            'slic',
+            'sigma',
+            float
+        )
 
     def _did_change_quickshift_kernel_size(self, _) -> None:
         """Respond to changes in the Quickshift kernel size parameter."""
-        self._did_change_entry('quickshift_kernel_size', 'quickshift', 'kernel_size', int)
+        self._did_change_entry(
+            'quickshift_kernel_size',
+            'quickshift',
+            'kernel_size',
+            int
+        )
 
     def _did_change_quickshift_max_distance(self, _) -> None:
         """Respond to changes in the Quickshift max distance parameter."""
-        self._did_change_entry('quickshift_max_dist', 'quickshift', 'max_dist', float)
+        self._did_change_entry(
+            'quickshift_max_dist',
+            'quickshift',
+            'max_dist',
+            float
+        )
 
     def _did_change_quickshift_ratio(self, _) -> None:
         """Respond to changes in the Quickshift ratio parameter."""
-        self._did_change_entry('quickshift_ratio', 'quickshift', 'ratio', float)
+        self._did_change_entry(
+            'quickshift_ratio',
+            'quickshift',
+            'ratio',
+            float
+        )
 
     def _did_change_watershed_markers(self, _) -> None:
         """Respond to changes in the Watershed markers parameter."""
-        self._did_change_entry('watershed_markers', 'watershed', 'markers', int)
+        self._did_change_entry(
+            'watershed_markers',
+            'watershed',
+            'markers',
+            int
+        )
 
     def _did_change_watershed_compactness(self, _) -> None:
         """Respond to changes in the Watershed compactness parameter."""
-        self._did_change_entry('watershed_compactness', 'watershed', 'compactness', float)
+        self._did_change_entry(
+            'watershed_compactness',
+            'watershed',
+            'compactness',
+            float
+        )
 
     def _did_change_label(self, _) -> None:
         """Respond to changes in the label selection list box."""
