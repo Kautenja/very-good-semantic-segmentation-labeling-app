@@ -166,7 +166,7 @@ class Window(object):
         self._bottom += dy * speed
         self._top += dy * speed
 
-    def transform(self, x: int, y: int) -> any:
+    def transform(self, x: int, y: int) -> tuple:
         """
         Transform x and y values on the screen to values on the base image.
 
@@ -185,7 +185,7 @@ class Window(object):
         x /= self._zoom_level
         y /= self._zoom_level
         # pass the values to the callback
-        return x, y
+        return int(x), int(y)
 
     def show(self, data: list) -> None:
         """
