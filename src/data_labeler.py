@@ -201,20 +201,25 @@ class DataLabeler(object):
         """Blit local data structures to the GUI."""
         # setup the source image with an alpha channel
         alpha = 255 * np.ones_like(self.image[..., 0:1])
-        img = np.concatenate([self._image, alpha], axis=-1).astype('uint8')
+        image = np.concatenate([self._image, alpha], axis=-1).astype('uint8')
         # setup the super pixel segmentations
-        sup = np.zeros_like(self.image)
-        sup = mark_boundaries(sup, self._super_pixel_segments, self._super_pixel_color)
+        super_pixels = np.zeros_like(self.image)
+        super_pixels = mark_boundaries(
+            super_pixels,
+            self._super_pixel_segments,
+            self._super_pixel_color
+        )
         # concatenate the first channel of sup as the alpha channel
-        sup = np.concatenate([sup, sup[..., 0:1]], axis=-1).astype('uint8')
+        super_pixels = [super_pixels, super_pixels[..., 0:1]]
+        super_pixels = np.concatenate(super_pixels, axis=-1).astype('uint8')
         # setup the segmentation image with an alpha channel scaled by the
-        # opacity parameter of the application
+        # opacity parameter of the application [0, 9]
         intensity = 255 * (self._opacity / 9)
-        alpha = intensity * np.ones_like(self._segmentation[..., 0:1])
-        seg = np.concatenate([self._segmentation, alpha], axis=-1)
-        seg = seg.astype('uint8')
+        intensity = intensity * np.ones_like(self._segmentation[..., 0:1])
+        segmentation = np.concatenate([self._segmentation, intensity], axis=-1)
+        segmentation = segmentation.astype('uint8')
         # send the images to the window
-        self._view.show([img, seg, sup])
+        self._view.show([image, segmentation, super_pixels])
 
     def _on_palette_change(self, palette_data: dict) -> None:
         """
