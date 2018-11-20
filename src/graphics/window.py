@@ -4,6 +4,12 @@ from pyglet.image import ImageData as _ImageData
 from pyglet.gl import *
 
 
+# the factor to zoom in by
+ZOOM_IN_FACTOR = 1.2
+# the factor to zoom out by
+ZOOM_OUT_FACTOR = 1 / ZOOM_IN_FACTOR
+
+
 class Window(object):
     """A simple class for viewing images using a pyglet window."""
 
@@ -26,6 +32,13 @@ class Window(object):
         self.width = width
         self.encoding = encoding
         self._window = None
+        self.left   = 0
+        self.right  = width
+        self.bottom = 0
+        self.top    = height
+        self.zoom_level = 1
+        self.zoomed_width  = width
+        self.zoomed_height = height
 
     def __repr__(self) -> str:
         """Return an executable string representing this object."""
@@ -58,6 +71,29 @@ class Window(object):
             vsync=False,
             resizable=False,
         )
+        self._window.event(self.on_mouse_scroll)
+
+    def on_mouse_scroll(self, x: int, y: int, dx: float, dy: float) -> None:
+        """Respond to mouse scrolling events."""
+        # Get the scaling factor
+        f = ZOOM_IN_FACTOR if dy > 0 else ZOOM_OUT_FACTOR if dy < 0 else 1
+        # check If zoom_level is in the legal range
+        if .2 < self.zoom_level * f < 5:
+            self.zoom_level *= f
+            # calculate the position of the mouse
+            mouse_x = x / self.width
+            mouse_y = y / self.height
+            # determine the position of the mouse within the image
+            mouse_x_in_img = self.left + mouse_x * self.zoomed_width
+            mouse_y_in_img = self.bottom + mouse_y * self.zoomed_height
+            # update the zoomed width and height variables
+            self.zoomed_width *= f
+            self.zoomed_height *= f
+            # update the points of the image view frame
+            self.left = mouse_x_in_img - mouse_x * self.zoomed_width
+            self.right = mouse_x_in_img + (1 - mouse_x) * self.zoomed_width
+            self.bottom = mouse_y_in_img - mouse_y * self.zoomed_height
+            self.top = mouse_y_in_img + (1 - mouse_y) * self.zoomed_height
 
     def set_cursor(self, cursor) -> None:
         """
@@ -72,12 +108,32 @@ class Window(object):
         """
         self._window.set_mouse_cursor(cursor)
 
-    def show(self, frame, _flip: bool=True) -> None:
+    def move_camera(self, dx: float, dy: float) -> None:
+        """
+        Move the camera of the window by a differential.
+
+        Args:
+            dx: the rate of change in x value
+            dy: the rate of change in y value
+
+        Returns:
+            None
+
+        """
+        # determine the speed to move the camera at
+        speed = max(1.0, self.zoom_level)
+        # update the positions of the frame corners
+        self.left += dx * speed
+        self.right += dx * speed
+        self.bottom += dy * speed
+        self.top += dy * speed
+
+    def show(self, data: list) -> None:
         """
         Show an array of pixels on the window.
 
         Args:
-            frame: the frame to show on the window
+            data: the data to show on the window
 
         Returns:
             None
@@ -90,7 +146,7 @@ class Window(object):
         self._window.switch_to()
         self._window.dispatch_events()
         # create the list of frames from the inputs
-        frames = frame if isinstance(frame, (list, tuple)) else [frame]
+        frames = data if isinstance(data, (list, tuple)) else [data]
         # setup alpha channel blending
         glEnable(GL_BLEND)
         # iterate over the frames in the input
@@ -106,7 +162,11 @@ class Window(object):
             # set the alpha channel blend mode for the image
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             # blit the image to the window
-            image.blit(0, 0, width=self._window.width, height=self._window.height)
+            image.blit(self.left, self.bottom,
+                width=self.zoomed_width,
+                height=self.zoomed_height
+            )
+
         # flip the changes to the window
         self._window.flip()
 

@@ -1,4 +1,5 @@
 """An image view using NumPy and Pyglet."""
+import pyglet
 from .window import Window
 
 
@@ -47,6 +48,28 @@ class ImageView(object):
         """
         self._window.window.event(handler)
 
+    def left_mouse_handler(self, x: int, y: int, handler: 'Callable') -> any:
+        """
+        Handle mouse events when the left button is pressed, held, released.
+
+        Args:
+            x: the x position on the screen
+            y: the y position on the screen
+            handler: the callable handler
+
+        Returns:
+            the output of the handler method
+
+        """
+        # determine the position of the mouse inside the original frame
+        x = x - self._window.left
+        y = y - self._window.bottom
+        # transform the mouse positions to the new frame size
+        x /= self._window.zoom_level
+        y /= self._window.zoom_level
+        # pass the values to the callback
+        return handler(x, self.image_shape[0] - y)
+
     def add_on_mouse_press_handler(self, handler) -> None:
         """
         Add an on mouse press event handler to the view.
@@ -58,9 +81,12 @@ class ImageView(object):
             None
 
         """
-        def on_mouse_press(mouse_x: int, mouse_y: int, *args) -> None:
+        def on_mouse_press(x, y, buttons, _) -> None:
             """Respond to a pyglet mouse click event."""
-            return handler(mouse_x, self.image_shape[0] - mouse_y)
+            # if the button is the left button, pass values to the handler
+            if buttons == pyglet.window.mouse.LEFT:
+                return self.left_mouse_handler(x, y, handler)
+        # add the method as an event handler to the window
         self.add_event_handler(on_mouse_press)
 
     def add_on_mouse_drag_handler(self, handler) -> None:
@@ -74,9 +100,15 @@ class ImageView(object):
             None
 
         """
-        def on_mouse_drag(mouse_x: int, mouse_y: int, *args) -> None:
+        def on_mouse_drag(x, y, dx, dy, buttons, _) -> None:
             """Respond to a pyglet mouse drag event."""
-            return handler(mouse_x, self.image_shape[0] - mouse_y)
+            # if the button is the right button, move the camera
+            if buttons == pyglet.window.mouse.RIGHT:
+                self._window.move_camera(dx, dy)
+            # if the button is the left button, pass values to the handler
+            elif buttons == pyglet.window.mouse.LEFT:
+                return self.left_mouse_handler(x, y, handler)
+        # add the method as an event handler to the window
         self.add_event_handler(on_mouse_drag)
 
     def add_on_key_press_handler(self, handler) -> None:
@@ -93,6 +125,7 @@ class ImageView(object):
         def on_key_press(symbol: int, *args) -> None:
             """Respond to a pyglet keyboard key press event."""
             return handler(symbol)
+        # add the method as an event handler to the window
         self.add_event_handler(on_key_press)
 
     def show(self, image: 'np.ndarray') -> None:
