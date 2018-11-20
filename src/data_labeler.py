@@ -90,7 +90,7 @@ class DataLabeler(object):
         """Return the size of the brush."""
         # get the brush size context and return its value
         with self._brush_size.get_lock():
-            return self._brush_size.value
+            return int(self._brush_size.value / self._view._window.zoom_level)
 
     @brush_size.setter
     def brush_size(self, new_value: int) -> None:
