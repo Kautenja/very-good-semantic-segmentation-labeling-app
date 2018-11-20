@@ -56,7 +56,7 @@ class DataLabeler(object):
         self._is_cursor_change = multiprocessing.Value('b', True)
         # create a raw array for sharing image data between processes
         array = multiprocessing.RawArray('b', int(np.prod(image.shape)))
-        numpy_array = np.frombuffer(array, dtype='uint8')
+        numpy_array = np.frombuffer(array, dtype=np.uint8)
         self._super_pixel = numpy_array.reshape(image.shape)
         # setup an array for the super pixel segmentation map
         array = multiprocessing.RawArray('i', int(np.prod(image.shape[:-1])))
@@ -66,11 +66,11 @@ class DataLabeler(object):
         self._label_to_rgb = self._metadata.set_index('label')['rgb']
         # if there is no segmentation, initialize as the first label
         if self._segmentation is None:
-            self._segmentation = np.zeros_like(image, dtype='uint8')
+            self._segmentation = np.zeros_like(image, dtype=np.uint8)
             self._segmentation[:, :, range(3)] = metadata['rgb'][0]
         # set the default color to the first label
         array = multiprocessing.RawArray('b', 3)
-        self._color = np.frombuffer(array, dtype='uint8')
+        self._color = np.frombuffer(array, dtype=np.uint8)
         self._color[:] = metadata['rgb'][0]
         # setup the window for the simulator and register event handlers
         self._view = ImageView('Data Labeler', image.shape[:2])
@@ -201,7 +201,7 @@ class DataLabeler(object):
         """Update the screen from local data structures."""
         # setup the source image with an alpha channel
         alpha = 255 * np.ones_like(self.image[..., 0:1])
-        image = np.concatenate([self._image, alpha], axis=-1).astype('uint8')
+        image = np.concatenate([self._image, alpha], axis=-1).astype(np.uint8)
         # setup the super pixel segmentations
         super_pixels = np.zeros_like(self.image)
         super_pixels = mark_boundaries(
@@ -211,13 +211,13 @@ class DataLabeler(object):
         )
         # concatenate the first channel of sup as the alpha channel
         super_pixels = [super_pixels, super_pixels[..., 0:1]]
-        super_pixels = np.concatenate(super_pixels, axis=-1).astype('uint8')
+        super_pixels = np.concatenate(super_pixels, axis=-1).astype(np.uint8)
         # setup the segmentation image with an alpha channel scaled by the
         # opacity parameter of the application [0, 9]
         intensity = 255 * (self._opacity / 9)
         intensity = intensity * np.ones_like(self._segmentation[..., 0:1])
         segmentation = np.concatenate([self._segmentation, intensity], axis=-1)
-        segmentation = segmentation.astype('uint8')
+        segmentation = segmentation.astype(np.uint8)
         # send the images to the window
         self._view.show([image, segmentation, super_pixels])
 
