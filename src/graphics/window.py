@@ -96,12 +96,12 @@ class Window(object):
         self.bottom += dy * self.zoom_level
         self.top += dy * self.zoom_level
 
-    def show(self, frame, _flip: bool=True) -> None:
+    def show(self, data: list) -> None:
         """
         Show an array of pixels on the window.
 
         Args:
-            frame: the frame to show on the window
+            data: the data to show on the window
 
         Returns:
             None
@@ -114,7 +114,7 @@ class Window(object):
         self._window.switch_to()
         self._window.dispatch_events()
         # create the list of frames from the inputs
-        frames = frame if isinstance(frame, (list, tuple)) else [frame]
+        frames = data if isinstance(data, (list, tuple)) else [data]
         # setup alpha channel blending
         glEnable(GL_BLEND)
         # iterate over the frames in the input
