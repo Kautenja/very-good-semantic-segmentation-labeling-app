@@ -4,6 +4,12 @@ from pyglet.image import ImageData as _ImageData
 from pyglet.gl import *
 
 
+# the factor to zoom in by
+ZOOM_IN_FACTOR = 1.2
+# the factor to zoom out by
+ZOOM_OUT_FACTOR = 1 / ZOOM_IN_FACTOR
+
+
 class Window(object):
     """A simple class for viewing images using a pyglet window."""
 
@@ -65,6 +71,30 @@ class Window(object):
             vsync=False,
             resizable=False,
         )
+        self._window.event(self.on_mouse_scroll)
+
+    def on_mouse_scroll(self, x, y, dx, dy):
+    # def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        # Get scale factor
+        f = ZOOM_IN_FACTOR if dy > 0 else ZOOM_OUT_FACTOR if dy < 0 else 1
+        # If zoom_level is in the proper range
+        if .2 < self.zoom_level * f < 5:
+
+            self.zoom_level *= f
+
+            mouse_x = x / self.width
+            mouse_y = y / self.height
+
+            mouse_x_in_world = self.left + mouse_x * self.zoomed_width
+            mouse_y_in_world = self.bottom + mouse_y * self.zoomed_height
+
+            self.zoomed_width *= f
+            self.zoomed_height *= f
+
+            self.left   = mouse_x_in_world - mouse_x * self.zoomed_width
+            self.right  = mouse_x_in_world + (1 - mouse_x) * self.zoomed_width
+            self.bottom = mouse_y_in_world - mouse_y * self.zoomed_height
+            self.top    = mouse_y_in_world + (1 - mouse_y) * self.zoomed_height
 
     def set_cursor(self, cursor) -> None:
         """
@@ -130,7 +160,10 @@ class Window(object):
             # set the alpha channel blend mode for the image
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             # blit the image to the window
-            image.blit(self.left, self.bottom, width=self.width, height=self.height)
+            image.blit(self.left, self.bottom,
+                width=self.zoomed_width,
+                height=self.zoomed_height
+            )
 
         # flip the changes to the window
         self._window.flip()

@@ -61,10 +61,18 @@ class ImageView(object):
         """
         def on_mouse_press(x, y, buttons, modifiers) -> None:
             """Respond to a pyglet mouse click event."""
+            print(self._window.top)
+            print(self._window.left, self._window.right)
+            print(self._window.bottom)
+            print()
             # if the button is the left button, pass values to the handler
             if buttons == pyglet.window.mouse.LEFT:
                 x = x + -self._window.left
                 y = self.image_shape[0] - y + self._window.bottom
+
+                x /= self._window.zoom_level
+                y = self.image_shape[0] - (self.image_shape[0] - y) / self._window.zoom_level
+
                 return handler(x, y)
         self.add_event_handler(on_mouse_press)
 
@@ -88,6 +96,10 @@ class ImageView(object):
             elif buttons == pyglet.window.mouse.LEFT:
                 x = x + -self._window.left
                 y = self.image_shape[0] - y + self._window.bottom
+
+                x /= self._window.zoom_level
+                y = self.image_shape[0] - (self.image_shape[0] - y) / self._window.zoom_level
+
                 return handler(x, y)
         self.add_event_handler(on_mouse_drag)
 
