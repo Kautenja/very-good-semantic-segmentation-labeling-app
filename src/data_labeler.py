@@ -167,7 +167,7 @@ class DataLabeler(object):
         # if brush mode, draw on the image use the circles
         if self.is_brush:
             # scale the brush size according to the windows zoom level
-            brush_size = int(self.brush_size / self._view._window.zoom_level)
+            brush_size = int(self.brush_size / self._view._window._zoom_level)
             # get the indexes of the circle in the segmentation
             circle_x, circle_y = circle(mouse_x, mouse_y, brush_size)
             # set the pixels outside the frame to the last pixel along the axis

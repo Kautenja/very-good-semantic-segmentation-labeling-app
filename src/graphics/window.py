@@ -38,13 +38,15 @@ class Window(object):
         self.width = width
         self.encoding = encoding
         self._window = None
-        self.left = 0
-        self.right = width
-        self.bottom = 0
-        self.top = height
-        self.zoom_level = 1
-        self.zoomed_width = width
-        self.zoomed_height = height
+        self._left = 0
+        # TODO: is this necessary?
+        self._right = width
+        self._bottom = 0
+        # TODO: is this necessary?
+        self._top = height
+        self._zoom_level = 1
+        self._zoomed_width = width
+        self._zoomed_height = height
 
     def __repr__(self) -> str:
         """Return an executable string representing this object."""
@@ -96,24 +98,24 @@ class Window(object):
         # Get the scaling factor
         scale = ZOOM_IN if dy > 0 else ZOOM_OUT if dy < 0 else 1
         # check If zoom_level is in the legal range
-        if not MIN_ZOOM < self.zoom_level * scale < MAX_ZOOM:
+        if not MIN_ZOOM < self._zoom_level * scale < MAX_ZOOM:
             return
         # scale the zoom level
-        self.zoom_level *= scale
+        self._zoom_level *= scale
         # calculate the position of the mouse
         mouse_x = x / self.width
         mouse_y = y / self.height
         # determine the position of the mouse within the image
-        mouse_x_in_img = self.left + mouse_x * self.zoomed_width
-        mouse_y_in_img = self.bottom + mouse_y * self.zoomed_height
+        mouse_x_in_img = self._left + mouse_x * self._zoomed_width
+        mouse_y_in_img = self._bottom + mouse_y * self._zoomed_height
         # update the zoomed width and height variables
-        self.zoomed_width *= scale
-        self.zoomed_height *= scale
+        self._zoomed_width *= scale
+        self._zoomed_height *= scale
         # update the points of the image view frame
-        self.left = mouse_x_in_img - mouse_x * self.zoomed_width
-        self.right = mouse_x_in_img + (1 - mouse_x) * self.zoomed_width
-        self.bottom = mouse_y_in_img - mouse_y * self.zoomed_height
-        self.top = mouse_y_in_img + (1 - mouse_y) * self.zoomed_height
+        self._left = mouse_x_in_img - mouse_x * self._zoomed_width
+        self._right = mouse_x_in_img + (1 - mouse_x) * self._zoomed_width
+        self._bottom = mouse_y_in_img - mouse_y * self._zoomed_height
+        self._top = mouse_y_in_img + (1 - mouse_y) * self._zoomed_height
 
     def set_cursor(self, cursor) -> None:
         """
@@ -130,13 +132,13 @@ class Window(object):
 
     def reset_camera(self) -> None:
         """Reset the camera to it's default position."""
-        self.left = 0
-        self.right = self.width
-        self.bottom = 0
-        self.top = self.width
-        self.zoom_level = 1
-        self.zoomed_width = self.width
-        self.zoomed_height = self.height
+        self._left = 0
+        self._right = self.width
+        self._bottom = 0
+        self._top = self.width
+        self._zoom_level = 1
+        self._zoomed_width = self.width
+        self._zoomed_height = self.height
 
     def move_camera(self, dx: float, dy: float) -> None:
         """
@@ -151,12 +153,12 @@ class Window(object):
 
         """
         # determine the speed to move the camera at
-        speed = max(1.0, self.zoom_level)
+        speed = max(1.0, self._zoom_level)
         # update the positions of the frame corners
-        self.left += dx * speed
-        self.right += dx * speed
-        self.bottom += dy * speed
-        self.top += dy * speed
+        self._left += dx * speed
+        self._right += dx * speed
+        self._bottom += dy * speed
+        self._top += dy * speed
 
     def transform(self, x: int, y: int) -> any:
         """
@@ -171,11 +173,11 @@ class Window(object):
 
         """
         # determine the position of the mouse inside the original frame
-        x = x - self.left
-        y = y - self.bottom
+        x = x - self._left
+        y = y - self._bottom
         # transform the mouse positions to the new frame size
-        x /= self.zoom_level
-        y /= self.zoom_level
+        x /= self._zoom_level
+        y /= self._zoom_level
         # pass the values to the callback
         return x, y
 
@@ -213,9 +215,9 @@ class Window(object):
             # set the alpha channel blend mode for the image
             gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
             # blit the image to the window
-            image.blit(self.left, self.bottom,
-                width=self.zoomed_width,
-                height=self.zoomed_height
+            image.blit(self._left, self._bottom,
+                width=self._zoomed_width,
+                height=self._zoomed_height
             )
 
         # flip the changes to the window
