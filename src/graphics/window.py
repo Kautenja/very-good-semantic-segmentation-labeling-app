@@ -5,9 +5,13 @@ from pyglet import gl
 
 
 # the factor to zoom in by
-ZOOM_IN_FACTOR = 1.2
+ZOOM_IN = 1.2
 # the factor to zoom out by
-ZOOM_OUT_FACTOR = 1 / ZOOM_IN_FACTOR
+ZOOM_OUT = 1 / ZOOM_IN
+# the max factor to zoom in by (matches the min brush size)
+MAX_ZOOM = 5
+# the min factor to zoom in by
+MIN_ZOOM = 0.2
 
 
 class Window(object):
@@ -90,9 +94,9 @@ class Window(object):
 
         """
         # Get the scaling factor
-        scale = ZOOM_IN_FACTOR if dy > 0 else ZOOM_OUT_FACTOR if dy < 0 else 1
+        scale = ZOOM_IN if dy > 0 else ZOOM_OUT if dy < 0 else 1
         # check If zoom_level is in the legal range
-        if not 0.2 < self.zoom_level * scale < 5:
+        if not MIN_ZOOM < self.zoom_level * scale < MAX_ZOOM:
             return
         # scale the zoom level
         self.zoom_level *= scale
