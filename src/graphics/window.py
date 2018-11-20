@@ -50,8 +50,7 @@ class Window(object):
 
     def __repr__(self) -> str:
         """Return an executable string representing this object."""
-        template = '{}(caption={}, height={}, width={}, encoding={})'
-        return template.format(
+        return '{}(caption={}, height={}, width={}, encoding={})'.format(
             self.__class__.__name__,
             self.caption,
             self.height,
