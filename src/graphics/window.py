@@ -178,14 +178,12 @@ class Window(object):
             the transformed x and y values
 
         """
-        # determine the position of the mouse inside the original frame
-        frame_x = screen_x - self._left
-        frame_y = screen_y - self._bottom
-        # transform the mouse positions to the zoomed frame size
-        image_x = frame_x / self._zoom_level
-        image_y = frame_y / self._zoom_level
-        # pass the values to the callback
-        return int(image_x), int(image_y)
+        # determine the position of the mouse inside the original frame,
+        # then scale by the zoom level, then cast to an integer
+        image_x = int((screen_x - self._left) / self._zoom_level)
+        image_y = int((screen_y - self._bottom) / self._zoom_level)
+
+        return image_x, image_y
 
     def show(self, data: list) -> None:
         """
