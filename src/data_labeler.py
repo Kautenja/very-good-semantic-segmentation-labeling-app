@@ -260,16 +260,19 @@ class DataLabeler(object):
 
     def _update_cursor(self) -> None:
         """Update the mouse cursor for the application window."""
+        # get the brush size (get a local reference in case another process
+        # changes it between the different accesses in this method)
+        brush_size = self.brush_size
         # if there is not update, return
         if not self.is_cursor_change:
             return
         # otherwise dequeue the update
         self.is_cursor_change = False
         # make a static border ring for the cursor
-        ring = make_ring(self.brush_size - 1, self.brush_size)
+        ring = make_ring(brush_size - 1, brush_size)
         cursor = make_cursor(ring, self._brush_border_color)
         # make a circle with the current color
-        brush_circle = make_circle(self.brush_size) - ring
+        brush_circle = make_circle(brush_size) - ring
         cursor = cursor + make_cursor(brush_circle, self._color)
         # create the pyglet cursor object and set it
         mouse = pyglet_cursor(cursor)
