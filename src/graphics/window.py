@@ -1,6 +1,5 @@
 """A simple class for viewing images using a pyglet window."""
 import pyglet
-from pyglet import gl
 
 
 # the factor to zoom in by
@@ -208,7 +207,7 @@ class Window(object):
         # create the list of frames from the inputs
         frames = data if isinstance(data, (list, tuple)) else [data]
         # setup alpha channel blending
-        gl.glEnable(gl.GL_BLEND)
+        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         # iterate over the frames in the input
         for frame in frames:
             # create an image data object
@@ -220,7 +219,10 @@ class Window(object):
                 pitch=frame.shape[1] * -len(self.encoding)
             )
             # set the alpha channel blend mode for the image
-            gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+            pyglet.gl.glBlendFunc(
+                pyglet.gl.GL_SRC_ALPHA,
+                pyglet.gl.GL_ONE_MINUS_SRC_ALPHA
+            )
             # blit the image to the window
             frame.blit(self._left, self._bottom,
                 width=self._zoomed_width,
