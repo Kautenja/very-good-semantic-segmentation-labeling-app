@@ -74,3 +74,12 @@ python3 . -i dummy/x_1541528173117841344.png -s dummy/y_1541528173117841344.png 
 | `0` ... `9`   | Set the opacity of the semantic segmentation overlay
 | `S`           | Save the image
 | `ESC`         | Save the image and close the application
+
+## Mouse Controls
+
+| Mouse Button | Action             |
+|:-------------|:-------------------|
+| `Left`       | Paint              |
+| `Right`      | Drag               |
+| `Middle`     | Reset Zoom         |
+| `Scroll`     | Zoom in / Zoom out |
